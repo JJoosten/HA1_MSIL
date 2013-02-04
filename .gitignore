@@ -1,0 +1,73 @@
+#OS junk files
+[Tt]humbs.db
+*.DS_Store
+
+# Generated MOC, resource and UI files
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
+
+#Visual Studio files
+*.[Oo]bj
+*.user
+*.aps
+*.pch
+*.exp
+*.vspscc
+*.vssscc
+*_i.c
+*_p.c
+*.ncb
+*.suo
+*.tlb
+*.tlh
+*.bak
+*.[Cc]ache
+*.ilk
+*.exe
+*.log
+*.sbr
+*.sdf
+*.opensdf
+*.dll
+*.DLL
+*.pdb
+*.lib
+*.exp
+*.lnk
+*.txt
+*.cd
+ipch/
+obj/
+[Bb]in
+[Dd]ebug*/
+[Rr]elease*/
+Ankh.NoLoad
+[Bb]uild*/
+[Bb]inaries/
+[Ss]mp/
+[Ss]amples/
+[Tt]est/
+[Tt]emp/
+c
+TODO
+[Dd]ata/
+
+#Tooling
+_ReSharper*/
+*.resharper
+[Tt]est[Rr]esult*
+UpgradeLog.xml
+_UpgradeReport_Files/
+
+#Project files
+[Bb]uild/
+
+#Subversion files
+.svn
+
+# Office Temp Files
+~$*
+
+# Project specific
+
