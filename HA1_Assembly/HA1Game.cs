@@ -11,18 +11,17 @@ using Microsoft.Xna.Framework.GamerServices;
 
 namespace HA1_Assembly
 {
-    /// <summary>
-    /// This is the main type for your game
-    /// </summary>
     public class HA1Game : Game
     {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+        private GraphicsDeviceManager m_Graphics;
+        private SpriteBatch m_SpriteBatch;
+        private CodeGenerator m_CodeGenerator;
+
 
         public HA1Game()
             : base()
         {
-            graphics = new GraphicsDeviceManager( this );
+            m_Graphics = new GraphicsDeviceManager( this );
             Content.RootDirectory = "Content";
         }
 
@@ -34,7 +33,7 @@ namespace HA1_Assembly
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            m_CodeGenerator.ParseDataLayout("DataStructures.xml");
 
             base.Initialize();
         }
@@ -46,7 +45,7 @@ namespace HA1_Assembly
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            m_SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
         }
@@ -65,27 +64,29 @@ namespace HA1_Assembly
         /// checking for collisions, gathering input, and playing audio.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Update(GameTime gameTime)
+        protected override void Update(GameTime a_GameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
             // TODO: Add your update logic here
 
-            base.Update(gameTime);
+            base.Update(a_GameTime);
         }
 
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Draw(GameTime gameTime)
+        protected override void Draw(GameTime a_GameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
+
+
             // TODO: Add your drawing code here
 
-            base.Draw(gameTime);
+            base.Draw(a_GameTime);
         }
     }
 }

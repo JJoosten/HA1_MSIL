@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<DataTypes>
+  
+  <DataLayout type="GameObject">
+    <Vector2 name="Position"/>
+    <Vector2 name="Scale"/>
+    <float name="Rotation"/>
+  </DataLayout>
+
+  <DataLayout type="DynamicObject">
+    <Vector2 name="Velocity"/>
+    <Vector2 name="Acceleration"/>
+    <String name="ScriptEntryPoint"/>
+  </DataLayout>
+
+  <DataLayout type="CollidableObject">
+    <Rectangle name="AABB"/>
+  </DataLayout>
+
+  <DataLayout type="DrawableObject">
+    <Texture2D name="Sprite"/>
+  </DataLayout>
+
+  
+  
+</DataTypes>
+
