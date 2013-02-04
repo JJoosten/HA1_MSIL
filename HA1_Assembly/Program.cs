@@ -11,7 +11,7 @@ namespace HA1_Assembly
     /// </summary>
     public static class Program
     {
-        private static Game1 game;
+        private static HA1Game game;
 
         /// <summary>
         /// The main entry point for the application.
@@ -19,7 +19,7 @@ namespace HA1_Assembly
         [STAThread]
         static void Main()
         {
-            game = new Game1();
+            game = new HA1Game();
             game.Run();
         }
     }
