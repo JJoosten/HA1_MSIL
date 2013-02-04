@@ -1,5 +1,6 @@
 ﻿#region Using Statements
 using System;
+using System.IO;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -22,6 +23,9 @@ namespace HA1_Assembly
             : base()
         {
             m_Graphics = new GraphicsDeviceManager( this );
+            
+            m_CodeGenerator = new CodeParser();
+
             Content.RootDirectory = "Content";
         }
 
@@ -33,15 +37,11 @@ namespace HA1_Assembly
         /// </summary>
         protected override void Initialize()
         {
-            m_CodeGenerator.ParseDataLayout("DataStructures.xml");
+            m_CodeGenerator.ParseDataLayout( Directory.GetCurrentDirectory() + "\\Content\\DataStructures.xml");
 
             base.Initialize();
         }
 
-        /// <summary>
-        /// LoadContent will be called once per game and is the place to load
-        /// all of your content.
-        /// </summary>
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
@@ -50,10 +50,6 @@ namespace HA1_Assembly
             // TODO: use this.Content to load your game content here
         }
 
-        /// <summary>
-        /// UnloadContent will be called once per game and is the place to unload
-        /// all content.
-        /// </summary>
         protected override void UnloadContent()
         {
             // TODO: Unload any non ContentManager content here
@@ -66,7 +62,7 @@ namespace HA1_Assembly
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime a_GameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if ( GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape) )
                 Exit();
 
             // TODO: Add your update logic here
@@ -82,9 +78,7 @@ namespace HA1_Assembly
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-
-
-            // TODO: Add your drawing code here
+            // TODO: Add render code here!
 
             base.Draw(a_GameTime);
         }
