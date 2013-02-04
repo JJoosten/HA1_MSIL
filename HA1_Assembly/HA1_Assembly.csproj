@@ -35,7 +35,7 @@
     <ApplicationIcon>Content\Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="CodeGenerator.cs" />
+    <Compile Include="CodeParser.cs" />
     <Compile Include="HA1Game.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

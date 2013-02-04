@@ -15,7 +15,7 @@ namespace HA1_Assembly
     {
         private GraphicsDeviceManager m_Graphics;
         private SpriteBatch m_SpriteBatch;
-        private CodeGenerator m_CodeGenerator;
+        private CodeParser m_CodeGenerator;
 
 
         public HA1Game()
