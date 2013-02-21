@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Behaviors>
+	<Behavior name="Drawable" >
+		<Property name="Sprite" type="Texture2D" />
+		<Property name="Position" type="Vector2" />
+		<Property name="Scale" type="Vector2" />
+		<Property name="Rotation" type="Vector2" />
+	</Behavior>
+	<Behavior name="Movable" >
+		<Property name="Position" type="Vector2" />
+		<Property name="Velocity" type="Vector2" />
+		<Property name="Acceleration" type="Vector2" />
+	</Behavior>
+	<Behavior name="Collidable" >
+		<Property name="AABB" type="AABB" />
+	</Behavior>
+</Behaviors>
+

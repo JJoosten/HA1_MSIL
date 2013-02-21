@@ -16,7 +16,7 @@ namespace HA1_Assembly
 			GameTypes = new List<GameType>();
 		}
 
-		public void Parse( string filename )
+		public void Parse(string filename, Dictionary<string, List<PropertyField>> gameBehaviorProperties)
 		{
 			XmlReader xmlReader = XmlReader.Create(filename);
 
@@ -37,14 +37,14 @@ namespace HA1_Assembly
 					{
 						string behaviorName = xmlReader.GetAttribute("name");
 
-						for (int i = 0; i < (int)GameBehaviors.Count; i++)
+						foreach (string item in gameBehaviorProperties.Keys)
 						{
-							GameBehaviors behavior = (GameBehaviors)i;
-							if (behaviorName == behavior.ToString())
+							if (behaviorName == item)
 							{
-								gameType.Behaviors[(int)behavior] = true;
+								gameType.Behaviors.Add(behaviorName, true);
 							}
 						}
+
 					}
 				}
 			}

@@ -36,6 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AABB.cs" />
+    <Compile Include="BehaviorTypesXmlReader.cs" />
     <Compile Include="CodeParser.cs" />
     <Compile Include="CustomAssemblyBuilder.cs" />
     <Compile Include="GameType.cs" />

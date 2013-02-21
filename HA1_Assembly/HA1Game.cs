@@ -37,13 +37,16 @@ namespace HA1_Assembly
         /// </summary>
         protected override void Initialize()
         {
-            m_CodeGenerator.ParseDataLayout( Directory.GetCurrentDirectory() + "\\Content\\DataStructures.xml");
+            //m_CodeGenerator.ParseDataLayout( Directory.GetCurrentDirectory() + @"\Content\DataStructures.xml");
 
-			GameTypesXmlReader xml = new GameTypesXmlReader();
-			xml.Parse(Directory.GetCurrentDirectory() + "\\Content\\GameTypes.xml");
+			BehaviorTypesXmlReader behaviorTypesXml = new BehaviorTypesXmlReader();
+			behaviorTypesXml.Parse(Directory.GetCurrentDirectory() + @"\Content\BehaviorTypes.xml");
+
+			GameTypesXmlReader gameTypesXml = new GameTypesXmlReader();
+			gameTypesXml.Parse(Directory.GetCurrentDirectory() + @"\Content\GameTypes.xml", behaviorTypesXml.GameBehaviorProperties);
 
 			GameTypesAssemblyBuilder ass = new GameTypesAssemblyBuilder();
-			ass.GenerateAssembly(xml.GameTypes);
+			ass.GenerateAssembly(gameTypesXml.GameTypes, behaviorTypesXml.GameBehaviorProperties);
 
             base.Initialize();
         }

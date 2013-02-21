@@ -6,22 +6,15 @@ using System.Threading.Tasks;
 
 namespace HA1_Assembly
 {
-	public enum GameBehaviors
-	{
-		Collidable,
-		Movable,
-		Count
-	}
-
 	public class GameType
 	{
 		public string Name { get; set; }
 
-		public bool[] Behaviors { get; set; }
+		public Dictionary<string, bool> Behaviors { get; set; }
 
 		public GameType()
 		{
-			Behaviors = new bool[(int)GameBehaviors.Count];
+			Behaviors = new Dictionary<string, bool>();
 		}
 	}
 }

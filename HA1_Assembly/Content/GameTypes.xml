@@ -1,9 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?> 
 <Types>
 	<Type name="Animal" >
+		<Behavior name="Drawable" />
 		<Behavior name="Collidable" />
 		<Behavior name="Movable" />
 	</Type>
 	<Type name="Plant" >
+		<Behavior name="Drawable" />
 		<Behavior name="Collidable" />
 	</Type>
 </Types>

@@ -10,29 +10,12 @@ namespace HA1_Assembly
 	public class GameTypesAssemblyBuilder
 	{
 		private CustomAssemblyBuilder assemblyBuilder;
-		private List<PropertyField>[] gameBehaviorProperties;
 
 		public GameTypesAssemblyBuilder()
 		{
-			gameBehaviorProperties = new List<PropertyField>[(int)GameBehaviors.Count];
-
-			//Specify all required properties for a specific behavior (in this case GameBehaviors.Collidable)
-			List<PropertyField> properties1 = new List<PropertyField>();
-			properties1.Add(new PropertyField() { PropertyType = typeof(Vector2), PropertyName = "Position" });
-			properties1.Add(new PropertyField() { PropertyType = typeof(Vector2), PropertyName = "Scale" });
-			properties1.Add(new PropertyField() { PropertyType = typeof(Vector2), PropertyName = "Rotation" });
-			properties1.Add(new PropertyField() { PropertyType = typeof(AABB), PropertyName = "AABB" });
-			gameBehaviorProperties[(int)GameBehaviors.Collidable] = properties1;
-
-			//Specify all required properties for GameBehaviors.Movable
-			List<PropertyField> properties2 = new List<PropertyField>();
-			properties2.Add(new PropertyField() { PropertyType = typeof(Vector2), PropertyName = "Position" });
-			properties2.Add(new PropertyField() { PropertyType = typeof(Vector2), PropertyName = "Velocity" });
-			properties2.Add(new PropertyField() { PropertyType = typeof(Vector2), PropertyName = "Acceleration" });
-			gameBehaviorProperties[(int)GameBehaviors.Movable] = properties2;
 		}
 
-		public void GenerateAssembly( List<GameType> gameTypes )
+		public void GenerateAssembly( List<GameType> gameTypes, Dictionary<string, List<PropertyField>> gameBehaviorProperties )
 		{
 			assemblyBuilder = new CustomAssemblyBuilder("GameTypes");
 
@@ -41,12 +24,15 @@ namespace HA1_Assembly
 				Dictionary<string, PropertyField> properties = new Dictionary<string, PropertyField>();
 				properties.Add("Name", new PropertyField() { PropertyType = typeof(String), PropertyName = "Name" });
 
-				for (int i = 0; i < (int)GameBehaviors.Count; i++)
+				foreach (KeyValuePair<string, List<PropertyField>> item in gameBehaviorProperties)
 				{
 					//Check whether or not the current game type has a behavior
-					if (gameType.Behaviors[i])
+					bool hasBehavior = false;
+					gameType.Behaviors.TryGetValue(item.Key, out hasBehavior);
+
+					if (hasBehavior)
 					{
-						foreach (PropertyField property in gameBehaviorProperties[i])
+						foreach (PropertyField property in item.Value)
 						{
 							//Prevent duplicate properties
 							if (!properties.ContainsKey(property.PropertyName))
