@@ -35,7 +35,12 @@
     <ApplicationIcon>Content\Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AABB.cs" />
     <Compile Include="CodeParser.cs" />
+    <Compile Include="CustomAssemblyBuilder.cs" />
+    <Compile Include="GameType.cs" />
+    <Compile Include="GameTypesAssemblyBuilder.cs" />
+    <Compile Include="GameTypesXmlReader.cs" />
     <Compile Include="HA1Game.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

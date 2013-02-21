@@ -39,6 +39,12 @@ namespace HA1_Assembly
         {
             m_CodeGenerator.ParseDataLayout( Directory.GetCurrentDirectory() + "\\Content\\DataStructures.xml");
 
+			GameTypesXmlReader xml = new GameTypesXmlReader();
+			xml.Parse(Directory.GetCurrentDirectory() + "\\Content\\GameTypes.xml");
+
+			GameTypesAssemblyBuilder ass = new GameTypesAssemblyBuilder();
+			ass.GenerateAssembly(xml.GameTypes);
+
             base.Initialize();
         }
 
