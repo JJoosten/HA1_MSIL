@@ -66,19 +66,10 @@ namespace HA1_Assembly
 		}
 
         protected override void Update(GameTime a_GameTime)
-        {
-            if ( GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape) )
-                Exit();
-
-		/// <summary>
-		/// Allows the game to run logic such as updating the world,
-		/// checking for collisions, gathering input, and playing audio.
-		/// </summary>
-		/// <param name="gameTime">Provides a snapshot of timing values.</param>
-		protected override void Update(GameTime a_GameTime)
 		{
 			if ( GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape) )
 				Exit();
+
             m_Player.Update(a_GameTime);
 
             // insert call to DLL update method
