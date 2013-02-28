@@ -35,7 +35,6 @@
     <ApplicationIcon>Content\Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="AABB.cs" />
     <Compile Include="BehaviorTypesXmlReader.cs" />
     <Compile Include="CodeParser.cs" />
     <Compile Include="CustomAssemblyBuilder.cs" />
@@ -45,6 +44,7 @@
     <Compile Include="HA1Game.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SceneXmlReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OpenTK">

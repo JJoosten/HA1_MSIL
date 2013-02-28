@@ -49,5 +49,32 @@ namespace HA1_Assembly
 				}
 			}
 		}
+
+		public void ParseProperties(Dictionary<string, List<PropertyField>> gameBehaviorProperties)
+		{
+			foreach (GameType gameType in GameTypes)
+			{
+				gameType.Properties.Add("Name", new PropertyField() { PropertyType = typeof(String), PropertyName = "Name" });
+
+				foreach (KeyValuePair<string, List<PropertyField>> item in gameBehaviorProperties)
+				{
+					//Check whether or not the current game type has a behavior
+					bool hasBehavior = false;
+					gameType.Behaviors.TryGetValue(item.Key, out hasBehavior);
+
+					if (hasBehavior)
+					{
+						foreach (PropertyField property in item.Value)
+						{
+							//Prevent duplicate properties
+							if (!gameType.Properties.ContainsKey(property.PropertyName))
+							{
+								gameType.Properties.Add(property.PropertyName, property);
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 }
