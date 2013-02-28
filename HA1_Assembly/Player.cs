@@ -17,6 +17,9 @@ namespace HA1_Assembly
         {
             // default initialize position
             Position = new Vector2(0,0);
+            AABB = new Rectangle(0, 0, 0, 0);
+            SpriteRectangle = new Rectangle(0, 0, 0, 0);
+            Sprite = null;
         }
   
         public void Update(GameTime a_GameTime)
