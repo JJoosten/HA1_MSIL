@@ -45,7 +45,7 @@ namespace HA1_Assembly
 			behaviorTypesXml.Parse(Directory.GetCurrentDirectory() + @"\Content\BehaviorTypes.xml");
 
 			GameTypesXmlReader gameTypesXml = new GameTypesXmlReader();
-			gameTypesXml.Parse(Directory.GetCurrentDirectory() + @"\Content\GameTypes.xml", behaviorTypesXml.GameBehaviorProperties);
+			gameTypesXml.Parse(Directory.GetCurrentDirectory() + @"\Content\GameTypes.xml", behaviorTypesXml.GameBehaviorProperties);            
 			gameTypesXml.ParseProperties(behaviorTypesXml.GameBehaviorProperties);
 
 			GameTypesAssemblyBuilder ass = new GameTypesAssemblyBuilder();
@@ -54,7 +54,13 @@ namespace HA1_Assembly
 			SceneXmlReader sceneXmlReader = new SceneXmlReader(Content);
 			sceneXmlReader.Parse(Directory.GetCurrentDirectory() + @"\Content\Scene.xml", gameTypesXml.GameTypes);
 
-			base.Initialize();
+            SceneManager sceneManager = new SceneManager();
+            sceneManager.ParseObjects(sceneXmlReader.Objects, gameTypesXml.GameTypes);
+
+            List<Object> drawableObjects = sceneManager.DrawableObjects;
+
+
+            base.Initialize();
 		}
 
 		protected override void LoadContent()
