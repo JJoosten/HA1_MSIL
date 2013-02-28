@@ -55,10 +55,11 @@ namespace HA1_Assembly
 			sceneXmlReader.Parse(Directory.GetCurrentDirectory() + @"\Content\Scene.xml", gameTypesXml.GameTypes);
 
             SceneManager sceneManager = new SceneManager();
-            sceneManager.ParseObjects(sceneXmlReader.Objects, gameTypesXml.GameTypes);
-
-            List<Object> drawableObjects = sceneManager.DrawableObjects;
-
+            sceneManager.ParseObjects(sceneXmlReader.Objects, gameTypesXml.GameTypes, behaviorTypesXml.GameBehaviorProperties);
+            //Retrieve lists with different type of behaviours
+            List<Object> collidableList = sceneManager.GetObjectList("Collidable");
+            List<Object> drawableList = sceneManager.GetObjectList("Drawable");
+            List<Object> movableList = sceneManager.GetObjectList("Movable");
 
             base.Initialize();
 		}

@@ -7,23 +7,34 @@ namespace HA1_Assembly
 {
     class SceneManager
     {
-        private List<Object> m_DrawableObjects;
-        private List<Object> m_CollidableObjects;
-        private List<Object> m_MovableObjects;
-
-        public List<Object> DrawableObjects { get { return m_DrawableObjects; } }
-        public List<Object> MovableObjects { get { return m_DrawableObjects; } }
-        public List<Object> CollidableObjects { get { return m_DrawableObjects; } }
+       
+        public Dictionary<string, List<Object>> m_GenericObjectLists;
 
         public SceneManager()
         {
-            m_DrawableObjects = new List<Object>();
-            m_CollidableObjects = new List<Object>();
-            m_MovableObjects = new List<Object>();
+            m_GenericObjectLists = new Dictionary<string, List<Object>>();
         }
 
-        public void ParseObjects(List<Object> a_ObjectList, List<GameType> a_GameTypes)
+        public List<Object> GetObjectList( string a_BehaviourName )
         {
+            List<Object> objectList;
+            if ( m_GenericObjectLists.TryGetValue( a_BehaviourName, out objectList ) == false )
+            {
+                Console.Write( string.Format( "Tried to retrieve a list with specific behaviour name that does not exist {0}.\n", a_BehaviourName ) );
+            }
+
+            return objectList;
+        }
+
+        public void ParseObjects(List<Object> a_ObjectList, List<GameType> a_GameTypes, Dictionary<string, List<PropertyField>> a_Behaviours )
+        {
+            //Loop through all the behaviour types and create lists for them
+            foreach (string behaviourName in a_Behaviours.Keys)
+            {
+                List<Object> objectsList = new List<Object>();
+                m_GenericObjectLists.Add(behaviourName, objectsList);
+            }
+
             //Loop through the objects and sort them according to their behaviour
             foreach ( Object sortableObject in a_ObjectList)
             {
@@ -33,24 +44,19 @@ namespace HA1_Assembly
                 {
                     if (objectType.Name == gameType.Name)
                     {
-                        Boolean found;
-                        //See if the current type is drawable
-                        gameType.Behaviors.TryGetValue( "Drawable", out found );
-                        if (found == true)
+                        //Loop through all the behaviours this type contains
+                        foreach (string behaviourName in gameType.Behaviors.Keys)
                         {
-                            m_DrawableObjects.Add(sortableObject);
-                        }
-                        //See if the current type is collidable
-                        gameType.Behaviors.TryGetValue("Collidable", out found);
-                        if (found == true)
-                        {
-                            m_CollidableObjects.Add(sortableObject);
-                        }
-                        //See if the current type is movable
-                        gameType.Behaviors.TryGetValue("Movable", out found);
-                        if (found == true)
-                        {
-                            m_MovableObjects.Add(sortableObject);
+                            //Lookup the generic list for this behaviour name
+                            List<Object> list;
+                            if (m_GenericObjectLists.TryGetValue(behaviourName, out list) == true)
+                            {
+                                list.Add(sortableObject);
+                            }
+                            else
+                            {
+                                Console.Write(string.Format("Tried looking up a behaviour that didn't exist when the generic object list were created {0}", behaviourName));
+                            }
                         }
 
                         break;
