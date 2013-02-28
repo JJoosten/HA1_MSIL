@@ -12,9 +12,12 @@ namespace HA1_Assembly
 
 		public Dictionary<string, bool> Behaviors { get; set; }
 
+		public Dictionary<string, PropertyField> Properties { get; set; }
+
 		public GameType()
 		{
 			Behaviors = new Dictionary<string, bool>();
+			Properties = new Dictionary<string, PropertyField>();
 		}
 	}
 }

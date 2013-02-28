@@ -2,6 +2,7 @@
 <Behaviors>
 	<Behavior name="Drawable" >
 		<Property name="Sprite" type="Texture2D" />
+		<Property name="SpriteRectangle" type="Rectangle" />
 		<Property name="Position" type="Vector2" />
 		<Property name="Scale" type="Vector2" />
 		<Property name="Rotation" type="Vector2" />
@@ -12,7 +13,7 @@
 		<Property name="Acceleration" type="Vector2" />
 	</Behavior>
 	<Behavior name="Collidable" >
-		<Property name="AABB" type="AABB" />
+		<Property name="AABB" type="Rectangle" />
 	</Behavior>
 </Behaviors>
 

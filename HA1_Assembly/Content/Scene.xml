@@ -1,5 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?> 
-
 <Scene>
-  <Tree posX="10" posY="0" rotX="45" rotY="0" scaleX="1" scaleY="1" sprite="@Content/Sprites/Tree.jpg" AABBmin="-2,-2" AABBmax="2,2"/> 
+	<Animal Name="Juul" Sprite="Sprites/Juul.jpg" AABBmin="0,0" AABBmax="10,10" SpriteRectangleX="" SpriteRectangleY="" SpriteRectangleWidth="" SpriteRectangleHeight="" PositionX="10" PositionY="11" ScaleX="1" ScaleY="1" RotationX="0" RotationY="0" />
 </Scene>

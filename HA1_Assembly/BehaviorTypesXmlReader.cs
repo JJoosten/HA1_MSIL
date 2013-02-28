@@ -46,8 +46,8 @@ namespace HA1_Assembly
 							case "Vector2":
 								type = typeof(Vector2);
 								break;
-							case "AABB":
-								type = typeof(AABB);
+							case "Rectangle":
+								type = typeof(Rectangle);
 								break;
 							case "Texture2D":
 								type = typeof(Texture2D);
