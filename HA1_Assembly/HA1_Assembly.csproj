@@ -43,6 +43,7 @@
     <Compile Include="GameTypesAssemblyBuilder.cs" />
     <Compile Include="GameTypesXmlReader.cs" />
     <Compile Include="HA1Game.cs" />
+    <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -63,11 +64,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\DataStructures.xml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Content\BehaviorTypes.xml" />
+    <Content Include="Content\GameTypes.xml" />
     <Content Include="Content\Icon.ico" />
     <Content Include="Content\Scene.xml" />
+    <Content Include="Content\Sprites\TileSet.png" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

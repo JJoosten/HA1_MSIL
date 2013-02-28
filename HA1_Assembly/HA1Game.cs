@@ -17,26 +17,28 @@ namespace HA1_Assembly
         private GraphicsDeviceManager m_Graphics;
         private SpriteBatch m_SpriteBatch;
         private CodeParser m_CodeGenerator;
+        private Player m_Player;
 
 
         public HA1Game()
             : base()
         {
             m_Graphics = new GraphicsDeviceManager( this );
-            
+
+            m_SpriteBatch = new SpriteBatch(m_Graphics.GraphicsDevice);
+
             m_CodeGenerator = new CodeParser();
+
+            m_Player = new Player() { Position = new Vector2(10,10) };
 
             Content.RootDirectory = "Content";
         }
 
-        /// <summary>
-        /// Allows the game to perform any initialization it needs to before starting to run.
-        /// This is where it can query for any required services and load any non-graphic
-        /// related content.  Calling base.Initialize will enumerate through any components
-        /// and initialize them as well.
-        /// </summary>
         protected override void Initialize()
         {
+            m_Player.Sprite = Content.Load<Texture2D>(@"Sprites\TileSet.png");
+            m_Player.SpriteRectangle = new Rectangle(5, 5, 32, 32);
+          
             //m_CodeGenerator.ParseDataLayout( Directory.GetCurrentDirectory() + @"\Content\DataStructures.xml");
 
 			BehaviorTypesXmlReader behaviorTypesXml = new BehaviorTypesXmlReader();
@@ -64,30 +66,30 @@ namespace HA1_Assembly
             // TODO: Unload any non ContentManager content here
         }
 
-        /// <summary>
-        /// Allows the game to run logic such as updating the world,
-        /// checking for collisions, gathering input, and playing audio.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime a_GameTime)
         {
             if ( GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape) )
                 Exit();
 
             // TODO: Add your update logic here
+            m_Player.Update(a_GameTime);
+
+            // insert call to DLL update method
 
             base.Update(a_GameTime);
         }
 
-        /// <summary>
-        /// This is called when the game should draw itself.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime a_GameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
+            
+            m_SpriteBatch.Begin();
+            
+            m_Player.Draw(a_GameTime, m_SpriteBatch);
+            
+            // insert call to DLL render method
 
-            // TODO: Add render code here!
+            m_SpriteBatch.End();
 
             base.Draw(a_GameTime);
         }

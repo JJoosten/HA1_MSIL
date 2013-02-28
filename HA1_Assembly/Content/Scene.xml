@@ -1,1 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?> 
+
+<Scene>
+  <Tree posX="10" posY="0" rotX="45" rotY="0" scaleX="1" scaleY="1" sprite="@Content/Sprites/Tree.jpg" AABBmin="-2,-2" AABBmax="2,2"/> 
+</Scene>
