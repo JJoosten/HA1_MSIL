@@ -8,6 +8,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Storage;
 using Microsoft.Xna.Framework.GamerServices;
+using System.Reflection;
+using System.Runtime.Remoting;
 #endregion
 
 namespace HA1_Assembly
@@ -18,7 +20,7 @@ namespace HA1_Assembly
 		private SpriteBatch m_SpriteBatch;
 		private CodeParser m_CodeGenerator;
         private Player m_Player;
-
+        private Object m_GenGame;
 
         public HA1Game()
             : base()
@@ -29,7 +31,7 @@ namespace HA1_Assembly
 
             m_CodeGenerator = new CodeParser();
 
-            m_Player = new Player() { Position = new Vector2(10,10) };
+            m_Player = new Player();
 
             Content.RootDirectory = "Content";
         }
@@ -60,6 +62,11 @@ namespace HA1_Assembly
             List<Object> collidableList = sceneManager.GetObjectList("Collidable");
             List<Object> drawableList = sceneManager.GetObjectList("Drawable");
             List<Object> movableList = sceneManager.GetObjectList("Movable");
+			
+            // this class will generate the game assembly
+            GameAssemblyBuilder gameAssemblyBuilder = new GameAssemblyBuilder();
+            gameAssemblyBuilder.GenerateDrawFunction();
+            gameAssemblyBuilder.Save();
 
             base.Initialize();
 		}
@@ -71,6 +78,14 @@ namespace HA1_Assembly
 
 			// TODO: use this.Content to load your game content here
 		}
+
+        private void LoadGameDLL()
+        {
+            Assembly assembly = Assembly.LoadFrom(Directory.GetCurrentDirectory() + "/GenGame.dll");
+
+            Type genGame = (Type)assembly.CreateInstance("GenGame");
+            m_GenGame = Activator.CreateInstance(genGame);
+        }
 
         protected override void Update(GameTime a_GameTime)
 		{
@@ -93,6 +108,7 @@ namespace HA1_Assembly
             m_Player.Draw(a_GameTime, m_SpriteBatch);
             
             // insert call to DLL render method
+			
             m_SpriteBatch.End();
 		
 			base.Draw(a_GameTime);

@@ -48,21 +48,41 @@ namespace HA1_Assembly
 			//verify generation
 			Console.WriteLine(Assembly.LoadFrom("AutoGen.dll").GetType("B").GetField("k").GetValue(null));*/
 		}
+
 		public Type CreateType(AssemblyBuilder assemblyBuilder, string typeName, Dictionary<string, PropertyField> properties)
 		{
-			TypeBuilder tb = GetTypeBuilder(assemblyBuilder, typeName);
+            TypeBuilder tb = CreateTypeBuilder( typeName);
 			ConstructorBuilder constructor = tb.DefineDefaultConstructor(MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
 
-			foreach (PropertyField field in properties.Values)
-			{
-				CreateProperty( tb, field.PropertyName, field.PropertyType );
-			}
+            if (properties != null)
+            {
+                foreach (PropertyField field in properties.Values)
+                {
+                    CreateProperty(tb, field.PropertyName, field.PropertyType);
+                }
+            }
 
 			Type objectType = tb.CreateType();
 			return objectType;
 		}
 
-		private TypeBuilder GetTypeBuilder(AssemblyBuilder assemblyBuilder, string typeName)
+        public TypeBuilder CreateType( string name)
+        {
+            TypeBuilder typeBuilder = CreateTypeBuilder(name);
+
+            return typeBuilder;
+        }
+
+
+        public ILGenerator CreateFunction(TypeBuilder typeBuilder, string name, MethodAttributes methodAttributes, Type returnType, Type[] parameters)
+        {
+            MethodBuilder methodBuilder = typeBuilder.DefineMethod(name, methodAttributes, returnType, parameters);
+            ILGenerator ilGenerator = methodBuilder.GetILGenerator();
+            
+            return ilGenerator;
+        }
+
+		private TypeBuilder CreateTypeBuilder( string typeName)
 		{
 			TypeBuilder tb = moduleBuilder.DefineType(typeName
 								, TypeAttributes.Public |

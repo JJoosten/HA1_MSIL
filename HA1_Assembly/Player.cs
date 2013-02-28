@@ -12,6 +12,7 @@ namespace HA1_Assembly
         public Rectangle SpriteRectangle { get; set; }
         public Rectangle AABB { get; set; }
         public Vector2 Position { get; set; }
+        public float Speed { get; set; }
 
         public Player()
         {
@@ -20,6 +21,7 @@ namespace HA1_Assembly
             AABB = new Rectangle(0, 0, 0, 0);
             SpriteRectangle = new Rectangle(0, 0, 0, 0);
             Sprite = null;
+            Speed = 100.0f;
         }
   
         public void Update(GameTime a_GameTime)
@@ -34,8 +36,8 @@ namespace HA1_Assembly
 
             if( movement.LengthSquared() > 0)
                 movement.Normalize();
-            
-            Position += movement * 100.0f * (1.0f / a_GameTime.ElapsedGameTime.Milliseconds);
+
+            Position += movement * Speed * a_GameTime.ElapsedGameTime.Milliseconds * 0.001f;
         }
 
         public void Draw(GameTime a_GameTime, SpriteBatch a_SpriteBatch)
