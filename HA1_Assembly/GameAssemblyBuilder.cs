@@ -20,20 +20,39 @@ namespace HA1_Assembly
 
 		public void GenerateGameObjects( List<Object> a_Objects, List<GameType> a_GameTypes )
 		{
-			MethodBuilder mb = m_TypeBuilder.DefineMethod("Initialize", MethodAttributes.Public | MethodAttributes.HideBySig, typeof(void), new Type[] { typeof(List<Object>) });
+			MethodBuilder mb = m_TypeBuilder.DefineMethod("Initialize", MethodAttributes.Public | MethodAttributes.HideBySig, typeof(void), new Type[] { typeof(List<Object>), typeof(List<Object>) });
 
 			ILGenerator gen = mb.GetILGenerator();
 
 			Type listType = a_Objects.GetType();
 			MethodInfo miGetItem = listType.GetMethod("get_Item");
+			MethodInfo miAdd = listType.GetMethod("Add");
 
 			gen.Emit(OpCodes.Nop);
+			gen.Emit(OpCodes.Ldarg_0);
+			gen.Emit(OpCodes.Ldarg_2);
+			FieldBuilder fbList = m_TypeBuilder.DefineField(string.Format("m_{0}", "Dynamics"), typeof(List<Object>), FieldAttributes.Public);
+			gen.Emit(OpCodes.Stfld, fbList);
+
+			// Example: initializing object list
+			/*ConstructorInfo ci = listType.GetConstructor(System.Type.EmptyTypes);
+			gen.Emit(OpCodes.Newobj, ci);
+			FieldBuilder fbList = m_TypeBuilder.DefineField(string.Format("m_{0}", "Dynamics"), typeof(List<Object>), FieldAttributes.Public);
+			gen.Emit(OpCodes.Stfld, fbList);*/
+
+			// Example: adding an object to a list
+			/*gen.Emit(OpCodes.Ldarg_0);
+			gen.Emit(OpCodes.Ldfld, fbList);
+			gen.Emit(OpCodes.Ldarg_1);
+			gen.Emit(OpCodes.Ldc_I4, (int)i);
+			gen.Emit(OpCodes.Callvirt, miGetItem);
+			gen.Emit(OpCodes.Castclass, type);
+			gen.Emit(OpCodes.Callvirt, miAdd);*/
 
 			int i = 0;
 			foreach (Object item in a_Objects)
 			{
 				Type type = item.GetType();
-
 				LocalBuilder paramValues = gen.DeclareLocal(type);
 				gen.Emit(OpCodes.Ldarg_0);
 				gen.Emit(OpCodes.Ldarg_1);
