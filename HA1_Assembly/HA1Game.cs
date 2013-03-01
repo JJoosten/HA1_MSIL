@@ -9,7 +9,6 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Storage;
 using Microsoft.Xna.Framework.GamerServices;
 using System.Reflection;
-using System.Runtime.Remoting;
 #endregion
 
 namespace HA1_Assembly
@@ -19,7 +18,8 @@ namespace HA1_Assembly
 		private GraphicsDeviceManager m_Graphics;
 		private SpriteBatch m_SpriteBatch;
 		private CodeParser m_CodeGenerator;
-        private Player m_Player;
+		private SceneXmlReader m_SceneXmlReader;
+		private Player m_Player;
         private Object m_GenGame;
 
         public HA1Game()
@@ -42,7 +42,7 @@ namespace HA1_Assembly
             m_Player.SpriteRectangle = new Rectangle(5, 5, 32, 32);
           
 			//m_CodeGenerator.ParseDataLayout( Directory.GetCurrentDirectory() + @"\Content\DataStructures.xml");
-
+			
 			BehaviorTypesXmlReader behaviorTypesXml = new BehaviorTypesXmlReader();
 			behaviorTypesXml.Parse(Directory.GetCurrentDirectory() + @"\Content\BehaviorTypes.xml");
 
@@ -53,11 +53,11 @@ namespace HA1_Assembly
 			GameTypesAssemblyBuilder ass = new GameTypesAssemblyBuilder();
 			ass.GenerateAssembly(gameTypesXml.GameTypes);
 
-			SceneXmlReader sceneXmlReader = new SceneXmlReader(Content);
-			sceneXmlReader.Parse(Directory.GetCurrentDirectory() + @"\Content\Scene.xml", gameTypesXml.GameTypes);
+			m_SceneXmlReader = new SceneXmlReader(Content);
+			m_SceneXmlReader.Parse(Directory.GetCurrentDirectory() + @"\Content\Scene.xml", gameTypesXml.GameTypes);
 
             SceneManager sceneManager = new SceneManager();
-            sceneManager.ParseObjects(sceneXmlReader.Objects, gameTypesXml.GameTypes, behaviorTypesXml.GameBehaviorProperties);
+			sceneManager.ParseObjects(m_SceneXmlReader.Objects, gameTypesXml.GameTypes, behaviorTypesXml.GameBehaviorProperties);
             //Retrieve lists with different type of behaviours
             List<Object> collidableList = sceneManager.GetObjectList("Collidable");
             List<Object> drawableList = sceneManager.GetObjectList("Drawable");
@@ -65,8 +65,11 @@ namespace HA1_Assembly
 			
             // this class will generate the game assembly
             GameAssemblyBuilder gameAssemblyBuilder = new GameAssemblyBuilder();
+			gameAssemblyBuilder.GenerateGameObjects(m_SceneXmlReader.Objects, gameTypesXml.GameTypes);
             gameAssemblyBuilder.GenerateDrawFunction();
             gameAssemblyBuilder.Save();
+
+			LoadGameDLL();
 
             base.Initialize();
 		}
@@ -83,8 +86,14 @@ namespace HA1_Assembly
         {
             Assembly assembly = Assembly.LoadFrom(Directory.GetCurrentDirectory() + "/GenGame.dll");
 
-            Type genGame = (Type)assembly.CreateInstance("GenGame");
-            m_GenGame = Activator.CreateInstance(genGame);
+			m_GenGame = assembly.CreateInstance("GenGame");
+			Type genGameType = m_GenGame.GetType();
+
+			MethodInfo mi = genGameType.GetMethod("Initialize");
+			mi.Invoke(m_GenGame, new object[] { m_SceneXmlReader.Objects });
+
+			FieldInfo fi = genGameType.GetField("m_Tree_3");
+			Object o = fi.GetValue(m_GenGame);
         }
 
         protected override void Update(GameTime a_GameTime)

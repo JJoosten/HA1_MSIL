@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.CodeDom.Compiler;
+using System.Globalization;
 
 namespace HA1_Assembly
 {
@@ -92,7 +93,6 @@ namespace HA1_Assembly
 								//TypeAttributes.BeforeFieldInit |
 								//TypeAttributes.AutoLayout
 								, null);
-
 			return tb;
 		}
 

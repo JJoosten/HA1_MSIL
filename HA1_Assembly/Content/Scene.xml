@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?> 
 <Scene>
 	<Animal Name="Animal1" Sprite="Sprites/TileSet.png" AABBMin="0,0" AABBMax="10,10" SpriteRectangleMin="0,0" SpriteRectangleMax="20,20" Position="10,11" Scale="1,1" Rotation="0,0" Velocity="1.1,1.2" />
+	<Animal Name="Animal2" Sprite="Sprites/TileSet.png" AABBMin="0,0" AABBMax="10,10" SpriteRectangleMin="0,0" SpriteRectangleMax="20,20" Position="10,11" Scale="1,1" Rotation="0,0" Velocity="1.1,1.2" />
 	<Tree Name="Tree1" Sprite="Sprites/TileSet.png" AABBMin="0,0" AABBMax="10,10" SpriteRectangleMin="0,0" SpriteRectangleMax="20,20" Position="10,11" Scale="1,1" Rotation="0,0" Velocity="1.1,1.2" />
+	<Tree Name="Tree2" Sprite="Sprites/TileSet.png" AABBMin="0,0" AABBMax="10,10" SpriteRectangleMin="0,0" SpriteRectangleMax="20,20" Position="10,11" Scale="1,1" Rotation="0,0" Velocity="1.1,1.2" />
 </Scene>

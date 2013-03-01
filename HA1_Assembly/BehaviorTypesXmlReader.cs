@@ -43,6 +43,15 @@ namespace HA1_Assembly
 						Type type = null;
 						switch (propertyType)
 						{
+							case "String":
+								type = typeof(String);
+								break;
+							case "Int":
+								type = typeof(int);
+								break;
+							case "Float":
+								type = typeof(float);
+								break;
 							case "Vector2":
 								type = typeof(Vector2);
 								break;

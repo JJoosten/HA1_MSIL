@@ -51,17 +51,17 @@ namespace HA1_Assembly
 									string s = ParseString(xmlReader, property.PropertyName);
 									info.SetValue(o, s, null);
 								}
-								if (info.PropertyType == typeof(int))
+								else if (info.PropertyType == typeof(int))
 								{
 									int i = ParseInt(xmlReader, property.PropertyName);
 									info.SetValue(o, i, null);
 								}
-								if (info.PropertyType == typeof(float))
+								else if (info.PropertyType == typeof(float))
 								{
 									float f = ParseFloat(xmlReader, property.PropertyName);
 									info.SetValue(o, f, null);
 								}
-								if (info.PropertyType == typeof(Vector2))
+								else if (info.PropertyType == typeof(Vector2))
 								{
 									Vector2 v = ParseVector2(xmlReader, property.PropertyName);
 									info.SetValue(o, v, null);
