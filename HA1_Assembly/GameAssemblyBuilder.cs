@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace HA1_Assembly
 {
@@ -72,16 +73,28 @@ namespace HA1_Assembly
 			// TODO: generate the update function with all the different update objects
 		}
 
-		public void GenerateDrawFunction()
-		{
-			ILGenerator ilGenerator = m_AssemblyBuilder.CreateFunction(m_TypeBuilder, "Draw", MethodAttributes.Public, typeof(void), null);
-			
-			// TODO; generate draw function with all the different game objects that get drawn
+        public void GenerateDrawFunction( )//List<Object> a_StaticDrawableObjects, List<Object> a_DynamicDrawableObjects)
+        {
+            ILGenerator ilGenerator = m_AssemblyBuilder.CreateFunction(m_TypeBuilder, "Draw", MethodAttributes.Public, typeof(void), new Type[] { typeof(SpriteBatch) });
 
+            /*
+            // TODO; generate draw function with all the different game objects that get drawn
+            if (a_StaticDrawableObjects != null)
+            {
+                foreach (Object drawable in a_StaticDrawableObjects)
+                {
+                    Type type = drawable.GetType();
 
-			// end the creation of this function
-			ilGenerator.Emit(OpCodes.Ret);
-		}
+                    //ilGenerator.Emit(OpCodes.Ldarg_1); // loads the local argument spritebatch on the evaluation stack
+                    
+
+                    //Behaviors.DrawStaticSprite(ilGenerator);
+                }
+            }*/
+
+            // end the creation of this function
+            ilGenerator.Emit(OpCodes.Ret);
+        }
 
 		public void Save()
 		{

@@ -28,7 +28,7 @@ namespace HA1_Assembly
 
 			AssemblyName an = new AssemblyName(assemblyName);
 			assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(an, AssemblyBuilderAccess.RunAndSave);
-			moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName, string.Format("{0}.dll", assemblyName), false);
+			moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName, string.Format("{0}.dll", assemblyName), true);
 		}
 
 		public void Save()

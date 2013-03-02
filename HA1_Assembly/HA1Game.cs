@@ -113,6 +113,7 @@ namespace HA1_Assembly
 		protected override void Draw(GameTime a_GameTime)
 		{
 			GraphicsDevice.Clear(Color.CornflowerBlue);
+
 			
 			m_SpriteBatch.Begin();
 			
