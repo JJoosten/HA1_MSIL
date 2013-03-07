@@ -49,16 +49,19 @@ namespace HA1_Assembly
                 //Left top
                 childNodes[0] = new QuadTreeNode(topLeft, tlRectangles, a_Depth + 1);
                 //Right top
-                childNodes[1] = new QuadTreeNode(topLeft, tlRectangles, a_Depth + 1);
+                childNodes[1] = new QuadTreeNode(topRight, trRectangles, a_Depth + 1);
                 //Left bottom
-                childNodes[2] = new QuadTreeNode(topLeft, tlRectangles, a_Depth + 1);
+                childNodes[2] = new QuadTreeNode(bottomLeft, blRectangles, a_Depth + 1);
                 //Right bottom
-                childNodes[3] = new QuadTreeNode(topLeft, tlRectangles, a_Depth + 1);
+                childNodes[3] = new QuadTreeNode(bottomRight, brRectangles, a_Depth + 1);
             }
         }
 
         public void GenerateAssembly(ILGenerator a_ILGenerator, Label a_FalseLabel, Label a_TrueLabel)
         {
+            //if (rectangles.Count == 0)
+            //    return;
+
             Label endLabel = a_ILGenerator.DefineLabel();
             //Write assembly
             //Load PlayerX onto stack
@@ -70,7 +73,7 @@ namespace HA1_Assembly
             //Load bounding rectangle X
             a_ILGenerator.Emit(OpCodes.Ldc_I4, boundingRectangle.X);
             //Check if the x + width < bouding rectangle.X if so jump to endlabel
-            a_ILGenerator.Emit(OpCodes.Blt, a_FalseLabel);
+            a_ILGenerator.Emit(OpCodes.Blt, endLabel);
             //Load PlayerX onto stack
             a_ILGenerator.Emit(OpCodes.Ldloc_1);
             //Load bounding rectangle.X onto stack
@@ -80,7 +83,7 @@ namespace HA1_Assembly
             //Add rectanlge.X + rectangle.Width
             a_ILGenerator.Emit(OpCodes.Add);
             ////Check if player.X > rectangle.X + rectangle.Width if so jump to endlabel
-            a_ILGenerator.Emit(OpCodes.Bgt, a_FalseLabel);
+            a_ILGenerator.Emit(OpCodes.Bgt, endLabel);
 
             //Load PlayerX onto stack
             a_ILGenerator.Emit(OpCodes.Ldloc_2);
@@ -91,7 +94,7 @@ namespace HA1_Assembly
             //Load bounding rectangle Y
             a_ILGenerator.Emit(OpCodes.Ldc_I4, boundingRectangle.Y);
             //Check if the Y + Height < bouding rectangle.Y if so jump to endlabel
-            a_ILGenerator.Emit(OpCodes.Blt, a_FalseLabel);
+            a_ILGenerator.Emit(OpCodes.Blt, endLabel);
             //Load PlayerX onto stack
             a_ILGenerator.Emit(OpCodes.Ldloc_2);
             //Load bounding rectangle.Y onto stack
@@ -101,7 +104,7 @@ namespace HA1_Assembly
             //Add rectanlge.Y + rectangle.Height
             a_ILGenerator.Emit(OpCodes.Add);
             ////Check if player.Y > rectangle.Y + rectangle.Height if so jump to endlabel
-            a_ILGenerator.Emit(OpCodes.Bgt, a_FalseLabel);
+            a_ILGenerator.Emit(OpCodes.Bgt, endLabel);
 
             if (hasChilds == true)
             {

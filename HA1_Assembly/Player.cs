@@ -42,7 +42,7 @@ namespace HA1_Assembly
 
         public void Draw(GameTime a_GameTime, SpriteBatch a_SpriteBatch)
         {
-            a_SpriteBatch.Draw(Sprite, Position, SpriteRectangle, Color.White, 10.0f, new Vector2(0,0), new Vector2(2,2), SpriteEffects.None, 0);
+            a_SpriteBatch.Draw(Sprite, Position, SpriteRectangle, Color.White, 0.0f, new Vector2(0,0), new Vector2(1,1), SpriteEffects.None, 0);
         }
     }
 }

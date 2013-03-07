@@ -26,8 +26,7 @@ namespace HA1_Assembly
         private MethodInfo m_GenInitialize;
         private MethodInfo m_GenGameUpdate;
         private MethodInfo m_GenGameDraw;
-
-
+        private MethodInfo m_GenStaticCollisionCheck;
 
 		public HA1Game()
 			: base()
@@ -78,7 +77,7 @@ namespace HA1_Assembly
                 staticRectangles.Add(GetRectangleFromObject(obj));
             }
 
-            AssemblyQuadTree quadTree = new AssemblyQuadTree(new Rectangle(1, 2, 1280, 720), staticRectangles);
+            AssemblyQuadTree quadTree = new AssemblyQuadTree(new Rectangle(0, 0, 1280, 720), staticRectangles);
 
         
 			// this class will generate the game assembly
@@ -90,7 +89,7 @@ namespace HA1_Assembly
 
 			LoadGameDLL();
 
-            Exit();
+            //Exit();
 
 			base.Initialize();
 
@@ -119,13 +118,14 @@ namespace HA1_Assembly
 			MethodInfo mi = genGameType.GetMethod("Initialize");
 			List<Object> movableList = m_SceneManager.GetObjectList("Movable");            
 			mi.Invoke(m_GenGame, new object[] { m_SceneXmlReader.Objects, movableList });
-            List<Object> movableList = m_SceneManager.GetObjectList("Movable");
             m_GenInitialize = genGameType.GetMethod("Initialize");
             m_GenInitialize.Invoke(m_GenGame, new object[] { m_SceneXmlReader.Objects, movableList });
 
             m_GenGameUpdate = genGameType.GetMethod("Update");
 
             m_GenGameDraw = genGameType.GetMethod("Draw");
+
+            m_GenStaticCollisionCheck = genGameType.GetMethod("StaticCollisionCheck");
 		}
 
 		protected override void Update(GameTime a_GameTime)
@@ -136,7 +136,16 @@ namespace HA1_Assembly
 			m_Player.Update(a_GameTime);
 
 			// insert call to DLL update method
+            
 
+            //Collision detection
+            Rectangle playerRect = new Rectangle((int)m_Player.Position.X, (int)m_Player.Position.Y, (int)m_Player.SpriteRectangle.Width, (int)m_Player.SpriteRectangle.Height);
+
+            bool check = (bool)m_GenStaticCollisionCheck.Invoke(m_GenGame, new object[] { playerRect });
+            if (check)
+            {
+                Console.WriteLine("Check");
+            }
 			base.Update(a_GameTime);
 		}
 
