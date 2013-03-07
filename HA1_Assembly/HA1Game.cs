@@ -26,8 +26,7 @@ namespace HA1_Assembly
         private MethodInfo m_GenInitialize;
         private MethodInfo m_GenGameUpdate;
         private MethodInfo m_GenGameDraw;
-
-
+        private MethodInfo m_GenStaticCollisionCheck;
 
 		public HA1Game()
 			: base()
@@ -65,20 +64,39 @@ namespace HA1_Assembly
 
 			m_SceneManager = new SceneManager();
 			m_SceneManager.ParseObjects(m_SceneXmlReader.Objects, gameTypesXml.GameTypes, behaviorTypesXml.GameBehaviorProperties);
-			//Retrieve lists with different type of behaviours
+			//Retrieve lists with different type of behaviors
 			List<Object> collidableList = m_SceneManager.GetObjectList("Collidable");
 			List<Object> drawableList = m_SceneManager.GetObjectList("Drawable");
 			List<Object> movableList = m_SceneManager.GetObjectList("Movable");
-			
+
+            List<Object> staticList = m_SceneManager.GetStaticObjectList();
+            //TEST JURRE
+            List<Rectangle> staticRectangles = new List<Rectangle>();
+            foreach (Object obj in staticList)
+            {
+                staticRectangles.Add(GetRectangleFromObject(obj));
+            }
+
+            AssemblyQuadTree quadTree = new AssemblyQuadTree(new Rectangle(0, 0, 1280, 720), staticRectangles);
+
+        
 			// this class will generate the game assembly
 			GameAssemblyBuilder gameAssemblyBuilder = new GameAssemblyBuilder();
 			gameAssemblyBuilder.GenerateGameObjects(m_SceneXmlReader.Objects, gameTypesXml.GameTypes);
             gameAssemblyBuilder.GenerateDrawFunction(drawableList, drawableList);
+            gameAssemblyBuilder.GenerateStaticCollisionFunction(quadTree);
 			gameAssemblyBuilder.Save();
 
 			LoadGameDLL();
 
+            //Exit();
+
 			base.Initialize();
+
+            Rectangle rect = new Rectangle();
+            Rectangle rect2 = new Rectangle();
+            rect.Intersects(rect2);
+
 		}
 
 		protected override void LoadContent()
@@ -97,13 +115,17 @@ namespace HA1_Assembly
 			m_GenGame = assembly.CreateInstance("GenGame");
 			Type genGameType = m_GenGame.GetType();
 
-            List<Object> movableList = m_SceneManager.GetObjectList("Movable");
+			MethodInfo mi = genGameType.GetMethod("Initialize");
+			List<Object> movableList = m_SceneManager.GetObjectList("Movable");            
+			mi.Invoke(m_GenGame, new object[] { m_SceneXmlReader.Objects, movableList });
             m_GenInitialize = genGameType.GetMethod("Initialize");
             m_GenInitialize.Invoke(m_GenGame, new object[] { m_SceneXmlReader.Objects, movableList });
 
             m_GenGameUpdate = genGameType.GetMethod("Update");
 
             m_GenGameDraw = genGameType.GetMethod("Draw");
+
+            m_GenStaticCollisionCheck = genGameType.GetMethod("StaticCollisionCheck");
 		}
 
 		protected override void Update(GameTime a_GameTime)
@@ -114,7 +136,16 @@ namespace HA1_Assembly
 			m_Player.Update(a_GameTime);
 
 			// insert call to DLL update method
+            
 
+            //Collision detection
+            Rectangle playerRect = new Rectangle((int)m_Player.Position.X, (int)m_Player.Position.Y, (int)m_Player.SpriteRectangle.Width, (int)m_Player.SpriteRectangle.Height);
+
+            bool check = (bool)m_GenStaticCollisionCheck.Invoke(m_GenGame, new object[] { playerRect });
+            if (check)
+            {
+                Console.WriteLine("Check");
+            }
 			base.Update(a_GameTime);
 		}
 
@@ -135,5 +166,21 @@ namespace HA1_Assembly
 		
 			base.Draw(a_GameTime);
 		}
+
+        //JURRE
+        public Rectangle GetRectangleFromObject(Object a_Object)
+        {
+            Type t = a_Object.GetType();
+            MethodInfo methodInfo = t.GetProperty("AABB").GetGetMethod();
+            Boolean check = true;
+            Rectangle rect = (Rectangle)methodInfo.Invoke(a_Object, null);
+            methodInfo = t.GetProperty("Position").GetGetMethod();
+            Vector2 position = (Vector2)methodInfo.Invoke(a_Object, null);
+            rect.X += (int)position.X;
+            rect.Y += (int)position.Y;
+            return rect;
+        }
+        
+
 	}
 }
