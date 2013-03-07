@@ -23,10 +23,12 @@ namespace HA1_Assembly
 		private Player m_Player;
 		private Object m_GenGame;
 
-        private MethodInfo m_GenInitialize;
-        private MethodInfo m_GenGameUpdate;
-        private MethodInfo m_GenGameDraw;
-        private MethodInfo m_GenStaticCollisionCheck;
+        private List<Object> m_Movables;
+        private Action<List<Object>, float> m_GenGameUpdate;
+        private Func<Rectangle, bool> m_GenStaticCollisionCheck;
+        private Action<List<Object>, List<Object>> m_GenInitialize;
+        private Action<SpriteBatch, Texture2D[]> m_GenGameDraw;
+
 
 		public HA1Game()
 			: base()
@@ -110,22 +112,31 @@ namespace HA1_Assembly
 
 		private void LoadGameDLL()
 		{
+            // generate game
 			Assembly assembly = Assembly.LoadFrom(Directory.GetCurrentDirectory() + "/GenGame.dll");
-
 			m_GenGame = assembly.CreateInstance("GenGame");
 			Type genGameType = m_GenGame.GetType();
 
-			MethodInfo mi = genGameType.GetMethod("Initialize");
-			List<Object> movableList = m_SceneManager.GetObjectList("Movable");            
-			mi.Invoke(m_GenGame, new object[] { m_SceneXmlReader.Objects, movableList });
-            m_GenInitialize = genGameType.GetMethod("Initialize");
-            m_GenInitialize.Invoke(m_GenGame, new object[] { m_SceneXmlReader.Objects, movableList });
+            // get list of movables
+            m_Movables = m_SceneManager.GetObjectList("Movable");
 
-            m_GenGameUpdate = genGameType.GetMethod("Update");
+            // create collision delegate
+            var staticCollisionCheck = genGameType.GetMethod("StaticCollisionCheck");
+            m_GenStaticCollisionCheck = (Func<Rectangle, bool>)Delegate.CreateDelegate(typeof(Func<Rectangle, bool>), m_GenGame, staticCollisionCheck);
+            
+            // create initialize delegate and call initialize
+            var initialize = genGameType.GetMethod("Initialize");
+            m_GenInitialize = (Action<List<Object>, List<Object>>)Delegate.CreateDelegate(typeof(Action<List<Object>, List<Object>>), m_GenGame, initialize);
+            m_GenInitialize(m_SceneXmlReader.Objects, m_Movables);
 
-            m_GenGameDraw = genGameType.GetMethod("Draw");
+            // create update delegate
+            //var update = genGameType.GetMethod("Update");
+            //m_GenGameUpdate = (Action<List<Object>, float>)Delegate.CreateDelegate(typeof(Action<List<Object>, float>), m_GenGame, update);
 
-            m_GenStaticCollisionCheck = genGameType.GetMethod("StaticCollisionCheck");
+            // create draw delegate
+            var draw = genGameType.GetMethod("Draw");
+            m_GenGameDraw = (Action<SpriteBatch, Texture2D[]>)Delegate.CreateDelegate(typeof(Action<SpriteBatch, Texture2D[]>), m_GenGame, draw);
+
 		}
 
 		protected override void Update(GameTime a_GameTime)
@@ -136,12 +147,13 @@ namespace HA1_Assembly
 			m_Player.Update(a_GameTime);
 
 			// insert call to DLL update method
-            
+            //m_GenGameUpdate(m_Movables, 1000.0f / (float)a_GameTime.TotalGameTime.Milliseconds);
 
             //Collision detection
             Rectangle playerRect = new Rectangle((int)m_Player.Position.X, (int)m_Player.Position.Y, (int)m_Player.SpriteRectangle.Width, (int)m_Player.SpriteRectangle.Height);
 
-            bool check = (bool)m_GenStaticCollisionCheck.Invoke(m_GenGame, new object[] { playerRect });
+
+            bool check = (bool)m_GenStaticCollisionCheck(playerRect);
             if (check)
             {
                 Console.WriteLine("Check");
@@ -153,14 +165,13 @@ namespace HA1_Assembly
 		{
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
-			
 			m_SpriteBatch.Begin();
 			
 			m_Player.Draw(a_GameTime, m_SpriteBatch);
 
             // insert call to DLL render method
             Texture2D[] textureArray = m_SceneXmlReader.Sprites.ToArray();
-            m_GenGameDraw.Invoke(m_GenGame, new object[] { m_SpriteBatch, textureArray });
+            m_GenGameDraw(m_SpriteBatch, textureArray);
 
 			m_SpriteBatch.End();
 		
