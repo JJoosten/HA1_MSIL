@@ -17,6 +17,7 @@ namespace HA1_Assembly
 
         public List<Object> Objects { get; set; }
         public List<Texture2D> Sprites { get; set; }
+        public Dictionary<string, int> SpritesDictionary = new Dictionary<string, int>();
 
 		public SceneXmlReader(ContentManager a_ContentManager)
 		{
@@ -70,10 +71,7 @@ namespace HA1_Assembly
 								}
 								else if (info.PropertyType == typeof(Texture2D))
 								{
-									Texture2D sprite = ParseSprite(xmlReader, property.PropertyName);
-                                    Sprites.Add(sprite);
-                                    int textureid = Sprites.Count - 1;
-                                    
+                                    int textureid = ParseSprite(xmlReader, property.PropertyName);
                                     PropertyInfo spriteid = type.GetProperty("SpriteID");
                                     spriteid.SetValue(o, textureid, null);
 								}
@@ -153,19 +151,28 @@ namespace HA1_Assembly
 			return v;
 		}
 
-		private Texture2D ParseSprite(XmlReader xmlReader, string propertyName)
+		private int ParseSprite(XmlReader xmlReader, string propertyName)
 		{
+            int textureID = 0;
 			Texture2D sprite = null;
 			if (xmlReader.MoveToAttribute(propertyName))
 			{
 				string strSprite = xmlReader.GetAttribute(propertyName);
 
-				if (!string.IsNullOrEmpty(strSprite.Trim()))
-				{
-					sprite = m_ContentManager.Load<Texture2D>(strSprite);
-				}
+                if (SpritesDictionary.ContainsKey(strSprite))
+                {
+                    textureID = SpritesDictionary[strSprite];
+                }
+                else
+                {
+                    sprite = m_ContentManager.Load<Texture2D>(strSprite);
+                    textureID = Sprites.Count;
+                    SpritesDictionary.Add(strSprite, textureID);
+                    Sprites.Add(sprite);
+                }
 			}
-			return sprite;
+
+            return textureID;
 		}
 
 		private Rectangle ParseRectangle(XmlReader xmlReader, string propertyName)
