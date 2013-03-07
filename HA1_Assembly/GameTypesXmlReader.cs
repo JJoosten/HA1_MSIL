@@ -44,7 +44,6 @@ namespace HA1_Assembly
 								gameType.Behaviors.Add(behaviorName, true);
 							}
 						}
-
 					}
 				}
 			}
