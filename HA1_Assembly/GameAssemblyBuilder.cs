@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace HA1_Assembly
@@ -73,24 +75,37 @@ namespace HA1_Assembly
 			// TODO: generate the update function with all the different update objects
 		}
 
-        public void GenerateDrawFunction( )//List<Object> a_StaticDrawableObjects, List<Object> a_DynamicDrawableObjects)
+        public void GenerateDrawFunction(List<Object> a_StaticDrawableObjects, List<Object> a_DynamicDrawableObjects)
         {
-            ILGenerator ilGenerator = m_AssemblyBuilder.CreateFunction(m_TypeBuilder, "Draw", MethodAttributes.Public, typeof(void), new Type[] { typeof(SpriteBatch) });
+            ILGenerator ilGenerator = m_AssemblyBuilder.CreateFunction(m_TypeBuilder, "Draw", MethodAttributes.Public, typeof(void), new Type[] { typeof(SpriteBatch), typeof(Texture2D[]) });
 
-            /*
+            
             // TODO; generate draw function with all the different game objects that get drawn
             if (a_StaticDrawableObjects != null)
             {
                 foreach (Object drawable in a_StaticDrawableObjects)
                 {
                     Type type = drawable.GetType();
-
-                    //ilGenerator.Emit(OpCodes.Ldarg_1); // loads the local argument spritebatch on the evaluation stack
                     
+                    // get sprite
+                    PropertyInfo propertyInfo = type.GetProperty("Sprite");
+                    Texture2D texture = (Texture2D)propertyInfo.GetValue(drawable, null);
 
-                    //Behaviors.DrawStaticSprite(ilGenerator);
+                    // get position
+                    propertyInfo = type.GetProperty("Position");
+                    Vector2 position = (Vector2)propertyInfo.GetValue(drawable, null);
+
+                    propertyInfo = type.GetProperty("SpriteRectangle");
+                    Rectangle rectangle = (Rectangle)propertyInfo.GetValue(drawable, null);
+
+
+                    ilGenerator.Emit(OpCodes.Ldarg_1); // loads the local argument spritebatch on the evaluation stack
+                    ilGenerator.Emit(OpCodes.Ldarg_2); // loads the local argument texture array on the evaluation stack
+
+                    int textureID = 0;
+                    Behaviors.DrawStaticSprite(ilGenerator, textureID, position, rectangle, Color.White);
                 }
-            }*/
+            }
 
             // end the creation of this function
             ilGenerator.Emit(OpCodes.Ret);
