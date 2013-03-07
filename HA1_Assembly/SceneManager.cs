@@ -26,6 +26,23 @@ namespace HA1_Assembly
             return objectList;
         }
 
+        public List<Object> GetStaticObjectList()
+        {
+            List<Object> staticList = new List<Object>();            
+            List<Object> collidableList = GetObjectList( "Collidable" );
+            List<Object> movableList = GetObjectList( "Movable" );
+
+            foreach( Object obj in collidableList )
+            {
+                if ( movableList.Contains( obj ) == false )
+                {
+                    staticList.Add( obj );
+                }
+            }
+
+            return staticList;
+        }
+
         public void ParseObjects(List<Object> a_ObjectList, List<GameType> a_GameTypes, Dictionary<string, List<PropertyField>> a_Behaviours )
         {
             //Loop through all the behaviour types and create lists for them

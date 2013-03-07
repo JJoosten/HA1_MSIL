@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace HA1_Assembly
@@ -94,6 +95,44 @@ namespace HA1_Assembly
 
             // end the creation of this function
             ilGenerator.Emit(OpCodes.Ret);
+        }
+
+        public void GenerateStaticCollisionFunction(AssemblyQuadTree a_Tree)
+        {
+            ILGenerator ilGenerator = m_AssemblyBuilder.CreateFunction(m_TypeBuilder, "StaticCollisionCheck", MethodAttributes.Public, typeof(Boolean), new Type[] { typeof(Rectangle) });
+            //Generate the massive if statements
+
+            Label trueLabel = ilGenerator.DefineLabel();
+            Label falseLabel = ilGenerator.DefineLabel();
+            
+            LocalBuilder localRectangle = ilGenerator.DeclareLocal(typeof(Rectangle));
+            LocalBuilder localIntX = ilGenerator.DeclareLocal(typeof(int));
+            LocalBuilder localIntY = ilGenerator.DeclareLocal(typeof(int));
+            LocalBuilder localIntWidth = ilGenerator.DeclareLocal(typeof(int));
+            LocalBuilder localIntHeight = ilGenerator.DeclareLocal(typeof(int));
+
+            ilGenerator.Emit(OpCodes.Ldarg_1);                                      //Load rectangle onto stack
+            ilGenerator.Emit(OpCodes.Dup);                                          //Duplicate the rectangle
+            ilGenerator.Emit(OpCodes.Ldfld, typeof(Rectangle).GetField("X") );      //Get the X field from the rectangle at the top of the stack ( gets popped and pushed )
+            ilGenerator.Emit(OpCodes.Stloc_1);                                      //Store X in our local_1 variable
+            ilGenerator.Emit(OpCodes.Dup);                                          //Duplicate the rectangle
+            ilGenerator.Emit(OpCodes.Ldfld, typeof(Rectangle).GetField("Y"));       //Get the Y field from the rectangle at the top of the stack ( gets popped and pushed )
+            ilGenerator.Emit(OpCodes.Stloc_2);                                      //Store Y in our local_2 variable
+            ilGenerator.Emit(OpCodes.Dup);                                          //Duplicate the rectangle
+            ilGenerator.Emit(OpCodes.Ldfld, typeof(Rectangle).GetField("Width"));   //Get the Width field from the rectangle at the top of the stack ( gets popped and pushed )
+            ilGenerator.Emit(OpCodes.Stloc_3);                                      //Store Width in our local_3 variable
+            ilGenerator.Emit(OpCodes.Ldfld, typeof(Rectangle).GetField("Height"));  //Get the Height field from the rectangle at the top of the stack ( gets popped and pushed )
+            ilGenerator.Emit(OpCodes.Stloc, 4);                                     //Store Height in our local_4 variable
+
+            a_Tree.GenerateAssembly(ilGenerator, falseLabel, trueLabel);
+
+            ilGenerator.MarkLabel(falseLabel);
+            ilGenerator.Emit(OpCodes.Ldc_I4, 0);
+            ilGenerator.Emit(OpCodes.Ret);
+
+            ilGenerator.MarkLabel(trueLabel);
+            ilGenerator.Emit(OpCodes.Ldc_I4, 1);
+            ilGenerator.Emit(OpCodes.Ret);            
         }
 
 		public void Save()
