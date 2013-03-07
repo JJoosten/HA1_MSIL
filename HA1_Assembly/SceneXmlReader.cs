@@ -15,13 +15,15 @@ namespace HA1_Assembly
 	{
 		private ContentManager m_ContentManager;
 
-		public List<Object> Objects { get; set; }
+        public List<Object> Objects { get; set; }
+        public List<Texture2D> Sprites { get; set; }
 
 		public SceneXmlReader(ContentManager a_ContentManager)
 		{
 			m_ContentManager = a_ContentManager;
 
 			Objects = new List<object>();
+            Sprites = new List<Texture2D>();
 		}
 
 		public void Parse(string a_Filename, List<GameType> a_GameTypes)
@@ -69,7 +71,11 @@ namespace HA1_Assembly
 								else if (info.PropertyType == typeof(Texture2D))
 								{
 									Texture2D sprite = ParseSprite(xmlReader, property.PropertyName);
-									info.SetValue(o, sprite, null);
+                                    Sprites.Add(sprite);
+                                    int textureid = Sprites.Count - 1;
+                                    
+                                    PropertyInfo spriteid = type.GetProperty("SpriteID");
+                                    spriteid.SetValue(o, textureid, null);
 								}
 								else if (info.PropertyType == typeof(Rectangle))
 								{

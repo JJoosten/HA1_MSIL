@@ -81,6 +81,7 @@ namespace HA1_Assembly
 			m_SpriteBatch = new SpriteBatch(GraphicsDevice);
 
 			// TODO: use this.Content to load your game content here
+            
 		}
 
 		private void LoadGameDLL()

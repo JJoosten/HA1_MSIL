@@ -15,7 +15,7 @@ namespace HA1_Assembly
         {
             // the first param on evaluation stack is the local var spritebatch
 
-            // TODO: push the texture from a member var on the evualuationStack
+            // TODO: push the texture from a member var on the evaluationStack
             ilGenerator.Emit(OpCodes.Ldc_R4, position.X);
             ilGenerator.Emit(OpCodes.Ldc_R4, position.Y);
             ilGenerator.Emit(OpCodes.Ldc_I4, textureRectangle.X);
