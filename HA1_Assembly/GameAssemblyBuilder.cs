@@ -77,9 +77,9 @@ namespace HA1_Assembly
 
         public void GenerateDrawFunction(List<Object> a_StaticDrawableObjects, List<Object> a_DynamicDrawableObjects)
         {
-            ILGenerator ilGenerator = m_AssemblyBuilder.CreateFunction(m_TypeBuilder, "Draw", MethodAttributes.Public, typeof(void), new Type[] { typeof(SpriteBatch), typeof(Texture2D[]) });
+            MethodBuilder mb = m_TypeBuilder.DefineMethod("Draw", MethodAttributes.Public | MethodAttributes.HideBySig, typeof(void), new Type[] { typeof(SpriteBatch), typeof(Texture2D[]) });
+            ILGenerator ilGenerator = mb.GetILGenerator();
 
-            
             // TODO; generate draw function with all the different game objects that get drawn
             if (a_StaticDrawableObjects != null)
             {
@@ -88,8 +88,8 @@ namespace HA1_Assembly
                     Type type = drawable.GetType();
                     
                     // get sprite
-                    PropertyInfo propertyInfo = type.GetProperty("Sprite");
-                    Texture2D texture = (Texture2D)propertyInfo.GetValue(drawable, null);
+                    PropertyInfo propertyInfo = type.GetProperty("SpriteID");
+                    int textureID = (int)propertyInfo.GetValue(drawable, null);
 
                     // get position
                     propertyInfo = type.GetProperty("Position");
@@ -98,12 +98,16 @@ namespace HA1_Assembly
                     propertyInfo = type.GetProperty("SpriteRectangle");
                     Rectangle rectangle = (Rectangle)propertyInfo.GetValue(drawable, null);
 
+                    propertyInfo = type.GetProperty("Rotation");
+                    float rotation = (float)propertyInfo.GetValue(drawable, null);
+
+                    propertyInfo = type.GetProperty("Scale");
+                    Vector2 scale = (Vector2)propertyInfo.GetValue(drawable, null);
 
                     ilGenerator.Emit(OpCodes.Ldarg_1); // loads the local argument spritebatch on the evaluation stack
                     ilGenerator.Emit(OpCodes.Ldarg_2); // loads the local argument texture array on the evaluation stack
 
-                    int textureID = 0;
-                    Behaviors.DrawStaticSprite(ilGenerator, textureID, position, rectangle, Color.White);
+                    Behaviors.DrawStaticSprite(ilGenerator, textureID, position, rectangle, rotation, scale);
                 }
             }
 

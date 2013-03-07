@@ -102,6 +102,7 @@ namespace HA1_Assembly
             m_GenInitialize.Invoke(m_GenGame, new object[] { m_SceneXmlReader.Objects, movableList });
 
             m_GenGameUpdate = genGameType.GetMethod("Update");
+
             m_GenGameDraw = genGameType.GetMethod("Draw");
 		}
 
@@ -125,10 +126,11 @@ namespace HA1_Assembly
 			m_SpriteBatch.Begin();
 			
 			m_Player.Draw(a_GameTime, m_SpriteBatch);
-			
-			// insert call to DLL render method
 
-			
+            // insert call to DLL render method
+            Texture2D[] textureArray = m_SceneXmlReader.Sprites.ToArray();
+            m_GenGameDraw.Invoke(m_GenGame, new object[] { m_SpriteBatch, textureArray });
+
 			m_SpriteBatch.End();
 		
 			base.Draw(a_GameTime);

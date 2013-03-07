@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Behaviors>
 	<Behavior name="Drawable" >
-    <Property name="SpriteID" type="Int" />
+    <Property name="SpriteID" type="int" />
 		<Property name="Sprite" type="Texture2D" />
 		<Property name="SpriteRectangle" type="Rectangle" />
 		<Property name="Position" type="Vector2" />
 		<Property name="Scale" type="Vector2" />
-		<Property name="Rotation" type="Vector2" />
+		<Property name="Rotation" type="float" />
 	</Behavior>
 	<Behavior name="Movable" >
 		<Property name="Position" type="Vector2" />

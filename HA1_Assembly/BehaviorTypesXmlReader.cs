@@ -41,24 +41,24 @@ namespace HA1_Assembly
 						string propertyType = xmlReader.GetAttribute("type");
 
 						Type type = null;
-						switch (propertyType)
+						switch (propertyType.ToLower())
 						{
-							case "String":
+							case "string":
 								type = typeof(String);
 								break;
-							case "Int":
+                            case "int":
 								type = typeof(int);
 								break;
-							case "Float":
+							case "float":
 								type = typeof(float);
 								break;
-							case "Vector2":
+							case "vector2":
 								type = typeof(Vector2);
 								break;
-							case "Rectangle":
+							case "rectangle":
 								type = typeof(Rectangle);
 								break;
-							case "Texture2D":
+							case "texture2d":
 								type = typeof(Texture2D);
 								break;
 							default:
