@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using Microsoft.Xna.Framework;
 
 namespace HA1_Assembly
 {
@@ -67,9 +68,102 @@ namespace HA1_Assembly
 			gen.Emit(OpCodes.Ret);
 		}
 
-		public void GenerateUpdateFunction()
+		public void GenerateUpdateFunction(List<Object> a_DynamicObjects)
 		{
 			// TODO: generate the update function with all the different update objects
+
+			MethodBuilder mb = m_TypeBuilder.DefineMethod("Update", MethodAttributes.Public | MethodAttributes.HideBySig, typeof(void), new Type[] { typeof(List<Object>), typeof(float) });
+			ILGenerator gen = mb.GetILGenerator();
+
+			LocalBuilder local1 = gen.DeclareLocal(typeof(int));
+			LocalBuilder local2 = gen.DeclareLocal(typeof(bool));
+
+			Type listType = a_DynamicObjects.GetType();
+			MethodInfo miGetItem = listType.GetMethod("get_Item");
+			MethodInfo miGetCount = listType.GetMethod("get_Count");
+
+			MethodInfo miMulVectorFloat = typeof(Vector2).GetMethod("op_Multiply", new Type[] { typeof(Vector2), typeof(float) });
+			MethodInfo miAddVectorVector = typeof(Vector2).GetMethod("op_Addition", new Type[] { typeof(Vector2), typeof(Vector2) });
+
+			Type objectType = a_DynamicObjects[0].GetType();
+			//PropertyInfo infoVelocity = objectType.GetProperty("Velocity");
+			MethodInfo miGetPosition = objectType.GetMethod("get_Position");
+			MethodInfo miSetPosition = objectType.GetMethod("set_Position");
+			MethodInfo miGetVelocity = objectType.GetMethod("get_Velocity");
+			MethodInfo miSetVelocity = objectType.GetMethod("set_Velocity", new Type[] { typeof(Vector2) });
+			MethodInfo miGetAcceleration = objectType.GetMethod("get_Acceleration");
+
+			Label label1 = gen.DefineLabel();
+			Label label2 = gen.DefineLabel();
+
+			gen.Emit(OpCodes.Nop);
+			gen.Emit(OpCodes.Ldc_I4_0);
+			gen.Emit(OpCodes.Stloc, local1);
+			gen.Emit(OpCodes.Br_S, label1);
+			gen.MarkLabel(label2);
+			gen.Emit(OpCodes.Nop);
+			gen.Emit(OpCodes.Ldarg_1);
+			gen.Emit(OpCodes.Ldloc_0);
+
+			gen.Emit(OpCodes.Callvirt, miGetItem);
+			gen.Emit(OpCodes.Dup);
+			gen.Emit(OpCodes.Callvirt, miGetVelocity);
+			gen.Emit(OpCodes.Ldarg_1);
+			gen.Emit(OpCodes.Ldloc_0);
+			gen.Emit(OpCodes.Callvirt, miGetItem);
+			gen.Emit(OpCodes.Callvirt, miGetAcceleration);
+			gen.Emit(OpCodes.Ldarg_2);
+			gen.Emit(OpCodes.Call, miMulVectorFloat);
+			gen.Emit(OpCodes.Call, miAddVectorVector);
+			gen.Emit(OpCodes.Callvirt, miSetVelocity);
+
+			gen.Emit(OpCodes.Nop);
+			gen.Emit(OpCodes.Ldarg_1);
+			gen.Emit(OpCodes.Ldloc_0);
+			gen.Emit(OpCodes.Callvirt, miGetItem);
+			gen.Emit(OpCodes.Dup);
+			gen.Emit(OpCodes.Callvirt, miGetPosition);
+			gen.Emit(OpCodes.Ldarg_1);
+			gen.Emit(OpCodes.Ldloc_0);
+			gen.Emit(OpCodes.Callvirt, miGetItem);
+			gen.Emit(OpCodes.Callvirt, miGetVelocity);
+			gen.Emit(OpCodes.Ldarg_2);
+			gen.Emit(OpCodes.Call, miMulVectorFloat);
+			gen.Emit(OpCodes.Call, miAddVectorVector);
+			gen.Emit(OpCodes.Callvirt, miSetPosition);
+
+			gen.Emit(OpCodes.Nop);
+			gen.Emit(OpCodes.Nop);
+			gen.Emit(OpCodes.Ldloc_0);
+			gen.Emit(OpCodes.Ldc_I4_1);
+			gen.Emit(OpCodes.Add);
+			gen.Emit(OpCodes.Stloc_0, local2);
+			gen.MarkLabel(label1);
+			gen.Emit(OpCodes.Ldloc_0);
+			gen.Emit(OpCodes.Ldarg_1);
+			gen.Emit(OpCodes.Callvirt, miGetCount);
+			gen.Emit(OpCodes.Clt);
+			gen.Emit(OpCodes.Stloc_1, local1);
+			gen.Emit(OpCodes.Ldloc_1);
+			gen.Emit(OpCodes.Brtrue_S, label2);
+			gen.Emit(OpCodes.Ret);
+
+			/*gen.Emit(OpCodes.Nop);
+			gen.Emit(OpCodes.Ldarg_1);
+			gen.Emit(OpCodes.Ldc_I4_0);
+			gen.Emit(OpCodes.Callvirt, miGetItem);
+			gen.Emit(OpCodes.Dup);
+			gen.Emit(OpCodes.Callvirt, miGetVelocity);
+			gen.Emit(OpCodes.Ldarg_1);
+			gen.Emit(OpCodes.Ldc_I4_0);
+			gen.Emit(OpCodes.Callvirt, miGetItem);
+			gen.Emit(OpCodes.Callvirt, miGetAcceleration);
+			gen.Emit(OpCodes.Ldarg_2);
+			gen.Emit(OpCodes.Call, miMulVectorFloat);
+			gen.Emit(OpCodes.Call, miAddVectorVector);
+			gen.Emit(OpCodes.Callvirt, miSetVelocity);
+			gen.Emit(OpCodes.Nop);
+			gen.Emit(OpCodes.Ret);*/
 		}
 
 		public void GenerateDrawFunction()
