@@ -4,6 +4,9 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Microsoft.Xna.Framework;
 
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+
 namespace HA1_Assembly
 {
 	public class GameAssemblyBuilder
@@ -166,16 +169,45 @@ namespace HA1_Assembly
 			gen.Emit(OpCodes.Ret);*/
 		}
 
-		public void GenerateDrawFunction()
-		{
-			ILGenerator ilGenerator = m_AssemblyBuilder.CreateFunction(m_TypeBuilder, "Draw", MethodAttributes.Public, typeof(void), null);
-			
-			// TODO; generate draw function with all the different game objects that get drawn
+        public void GenerateDrawFunction(List<Object> a_StaticDrawableObjects, List<Object> a_DynamicDrawableObjects)
+        {
+            MethodBuilder mb = m_TypeBuilder.DefineMethod("Draw", MethodAttributes.Public | MethodAttributes.HideBySig, typeof(void), new Type[] { typeof(SpriteBatch), typeof(Texture2D[]) });
+            ILGenerator ilGenerator = mb.GetILGenerator();
 
+            // TODO; generate draw function with all the different game objects that get drawn
+            if (a_StaticDrawableObjects != null)
+            {
+                foreach (Object drawable in a_StaticDrawableObjects)
+                {
+                    Type type = drawable.GetType();
+                    
+                    // get sprite
+                    PropertyInfo propertyInfo = type.GetProperty("SpriteID");
+                    int textureID = (int)propertyInfo.GetValue(drawable, null);
 
-			// end the creation of this function
-			ilGenerator.Emit(OpCodes.Ret);
-		}
+                    // get position
+                    propertyInfo = type.GetProperty("Position");
+                    Vector2 position = (Vector2)propertyInfo.GetValue(drawable, null);
+
+                    propertyInfo = type.GetProperty("SpriteRectangle");
+                    Rectangle rectangle = (Rectangle)propertyInfo.GetValue(drawable, null);
+
+                    propertyInfo = type.GetProperty("Rotation");
+                    float rotation = (float)propertyInfo.GetValue(drawable, null);
+
+                    propertyInfo = type.GetProperty("Scale");
+                    Vector2 scale = (Vector2)propertyInfo.GetValue(drawable, null);
+
+                    ilGenerator.Emit(OpCodes.Ldarg_1); // loads the local argument spritebatch on the evaluation stack
+                    ilGenerator.Emit(OpCodes.Ldarg_2); // loads the local argument texture array on the evaluation stack
+
+                    Behaviors.DrawStaticSprite(ilGenerator, textureID, position, rectangle, rotation, scale);
+                }
+            }
+
+            // end the creation of this function
+            ilGenerator.Emit(OpCodes.Ret);
+        }
 
 		public void Save()
 		{

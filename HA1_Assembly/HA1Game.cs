@@ -23,6 +23,12 @@ namespace HA1_Assembly
 		private Player m_Player;
 		private Object m_GenGame;
 
+        private MethodInfo m_GenInitialize;
+        private MethodInfo m_GenGameUpdate;
+        private MethodInfo m_GenGameDraw;
+
+
+
 		public HA1Game()
 			: base()
 		{
@@ -67,7 +73,7 @@ namespace HA1_Assembly
 			// this class will generate the game assembly
 			GameAssemblyBuilder gameAssemblyBuilder = new GameAssemblyBuilder();
 			gameAssemblyBuilder.GenerateGameObjects(m_SceneXmlReader.Objects, gameTypesXml.GameTypes);
-			gameAssemblyBuilder.GenerateDrawFunction();
+            gameAssemblyBuilder.GenerateDrawFunction(drawableList, drawableList);
 			gameAssemblyBuilder.Save();
 
 			LoadGameDLL();
@@ -81,6 +87,7 @@ namespace HA1_Assembly
 			m_SpriteBatch = new SpriteBatch(GraphicsDevice);
 
 			// TODO: use this.Content to load your game content here
+            
 		}
 
 		private void LoadGameDLL()
@@ -90,12 +97,13 @@ namespace HA1_Assembly
 			m_GenGame = assembly.CreateInstance("GenGame");
 			Type genGameType = m_GenGame.GetType();
 
-			MethodInfo mi = genGameType.GetMethod("Initialize");
-			List<Object> movableList = m_SceneManager.GetObjectList("Movable");
-			mi.Invoke(m_GenGame, new object[] { m_SceneXmlReader.Objects, movableList });
+            List<Object> movableList = m_SceneManager.GetObjectList("Movable");
+            m_GenInitialize = genGameType.GetMethod("Initialize");
+            m_GenInitialize.Invoke(m_GenGame, new object[] { m_SceneXmlReader.Objects, movableList });
 
-			FieldInfo fi = genGameType.GetField("m_Tree_3");
-			Object o = fi.GetValue(m_GenGame);
+            m_GenGameUpdate = genGameType.GetMethod("Update");
+
+            m_GenGameDraw = genGameType.GetMethod("Draw");
 		}
 
 		protected override void Update(GameTime a_GameTime)
@@ -113,13 +121,16 @@ namespace HA1_Assembly
 		protected override void Draw(GameTime a_GameTime)
 		{
 			GraphicsDevice.Clear(Color.CornflowerBlue);
+
 			
 			m_SpriteBatch.Begin();
 			
 			m_Player.Draw(a_GameTime, m_SpriteBatch);
-			
-			// insert call to DLL render method
-			
+
+            // insert call to DLL render method
+            Texture2D[] textureArray = m_SceneXmlReader.Sprites.ToArray();
+            m_GenGameDraw.Invoke(m_GenGame, new object[] { m_SpriteBatch, textureArray });
+
 			m_SpriteBatch.End();
 		
 			base.Draw(a_GameTime);
