@@ -11,19 +11,19 @@ namespace HA1_Assembly
 		public Texture2D Sprite { get; set; }
 		public Rectangle SpriteRectangle { get; set; }
 		public Rectangle AABB { get; set; }
-		public Vector2 Position { get; set; }
-		public Vector2 Velocity { get; set; }
-		public Vector2 Acceleration { get; set; }
+		public Vector3 Position { get; set; }
+		public Vector3 Velocity { get; set; }
+		public Vector3 Acceleration { get; set; }
 
 		public Player()
 		{
 			// default initialize position
-			Position = new Vector2(0, 440);
+			Position = new Vector3(640, 360, 0);
 			AABB = new Rectangle(0, 0, 0, 0);
 			SpriteRectangle = new Rectangle(0, 0, 0, 0);
 			Sprite = null;
-			Velocity = new Vector2(0, 0.0f);
-			Acceleration = new Vector2(0.0f, 200.0f);
+			Velocity = new Vector3(0.0f, 0.0f, 0);
+			Acceleration = new Vector3(0.0f, 0.0f, 0);
 		}
   
 		public void Update(GameTime a_GameTime)
@@ -34,30 +34,35 @@ namespace HA1_Assembly
 			int movX = Keyboard.GetState().IsKeyDown(Keys.D) == true ? 1 : 0;
 			movX -= Keyboard.GetState().IsKeyDown(Keys.A) == true ? 1 : 0;*/
 
-			Velocity = new Vector2(0.0f, Velocity.Y);
-			if (Keyboard.GetState().IsKeyDown(Keys.Left))
+			if (Keyboard.GetState().IsKeyDown(Keys.Left) || Keyboard.GetState().IsKeyDown(Keys.A))
 			{
-				Velocity = new Vector2(-100.0f, Velocity.Y);
+				Velocity += new Vector3(-20.0f, 0, 0);
 			}
-			else if (Keyboard.GetState().IsKeyDown(Keys.Right))
+			else if (Keyboard.GetState().IsKeyDown(Keys.Right) || Keyboard.GetState().IsKeyDown(Keys.D))
 			{
-				Velocity = new Vector2(100.0f, Velocity.Y);
+				Velocity += new Vector3(20.0f, 0, 0);
 			}
-			if (Keyboard.GetState().IsKeyDown(Keys.Up))
+			if (Keyboard.GetState().IsKeyDown(Keys.Up) || Keyboard.GetState().IsKeyDown(Keys.W))
 			{
-				Velocity = new Vector2(Velocity.X, -200.0f);
+				Velocity += new Vector3(0, -20.0f, 0);
 			}
+			if (Keyboard.GetState().IsKeyDown(Keys.Down) || Keyboard.GetState().IsKeyDown(Keys.S))
+			{
+				Velocity += new Vector3(0, 20.0f, 0);
+			}
+
+			Velocity *= 0.9f;
 
 			Velocity += Acceleration * a_GameTime.ElapsedGameTime.Milliseconds * 0.001f;
 			Position += Velocity * a_GameTime.ElapsedGameTime.Milliseconds * 0.001f;
 
-			if (Position.Y > 440 - AABB.Height)
-				Position = new Vector2(Position.X, 440 - AABB.Height);
+			//if (Position.Y > 440 - AABB.Height)
+			//	Position = new Vector2(Position.X, 440 - AABB.Height);
 		}
 
 		public void Draw(GameTime a_GameTime, SpriteBatch a_SpriteBatch)
 		{
-			a_SpriteBatch.Draw(Sprite, Position, SpriteRectangle, Color.White, 0.0f, new Vector2(0,0), new Vector2(1,1), SpriteEffects.None, 0);
+			a_SpriteBatch.Draw(Sprite, new Vector2( 320, 240 ), SpriteRectangle, Color.White, 0.0f, new Vector2(0,0), new Vector2(1,1), SpriteEffects.None, 0);
 		}
 	}
 }
