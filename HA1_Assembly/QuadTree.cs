@@ -17,7 +17,7 @@ namespace HA1_Assembly
             rectangles = a_Rectangles;
             //ITems per node == 4
             //Max depth == 10
-            if ( a_Rectangles.Count > 4 && a_Depth < 10)
+            if ( a_Rectangles.Count > 3 && a_Depth < 10)
             {
                 hasChilds = true;
                 Rectangle topLeft, topRight, bottomLeft, bottomRight;
@@ -93,7 +93,7 @@ namespace HA1_Assembly
             a_ILGenerator.Emit(OpCodes.Add);
             //Load bounding rectangle Y
             a_ILGenerator.Emit(OpCodes.Ldc_I4, boundingRectangle.Y);
-            //Check if the Y + Height < bouding rectangle.Y if so jump to endlabel
+            //Check if the Y + Height < bounding rectangle.Y if so jump to endlabel
             a_ILGenerator.Emit(OpCodes.Blt, endLabel);
             //Load PlayerX onto stack
             a_ILGenerator.Emit(OpCodes.Ldloc_2);
@@ -103,7 +103,7 @@ namespace HA1_Assembly
             a_ILGenerator.Emit(OpCodes.Ldc_I4, boundingRectangle.Height);
             //Add rectanlge.Y + rectangle.Height
             a_ILGenerator.Emit(OpCodes.Add);
-            ////Check if player.Y > rectangle.Y + rectangle.Height if so jump to endlabel
+            //Check if player.Y > rectangle.Y + rectangle.Height if so jump to endlabel
             a_ILGenerator.Emit(OpCodes.Bgt, endLabel);
 
             if (hasChilds == true)
@@ -118,22 +118,68 @@ namespace HA1_Assembly
                 MethodInfo checkMethod = typeof(Rectangle).GetMethod("Intersects", new Type[] { typeof(Rectangle) }, null);
                 foreach (Rectangle rect in rectangles)
                 {
-                    a_ILGenerator.Emit(OpCodes.Ldc_I4, rect.X); //Load arguments for object rectangle onto stack
-                    a_ILGenerator.Emit(OpCodes.Ldc_I4, rect.Y);
+                    Label endRectangleLabel = a_ILGenerator.DefineLabel();
+                    //New method ( extracted rectangle check )
+                    //Load PlayerX onto stack
+                    a_ILGenerator.Emit(OpCodes.Ldloc_1);
+                    //Load PlayerWidth onto stack
+                    a_ILGenerator.Emit(OpCodes.Ldloc_3);
+                    //Add PlayerX to PlayerWidth, which ends up on the stack
+                    a_ILGenerator.Emit(OpCodes.Add);
+                    //Load hard coded rectangle X onto stack
+                    a_ILGenerator.Emit(OpCodes.Ldc_I4, rect.X);
+                    //Check if PlayerX + PlayerW >= Rectangle X
+                    a_ILGenerator.Emit(OpCodes.Blt, endRectangleLabel);
+                    //Load PlayerX onto stack
+                    a_ILGenerator.Emit(OpCodes.Ldloc_1);
+                    //Load ObjectX onto stack
+                    a_ILGenerator.Emit(OpCodes.Ldc_I4, rect.X);
+                    //Load Object width onto stack
                     a_ILGenerator.Emit(OpCodes.Ldc_I4, rect.Width);
+                    //Add the objectX to object Width, which ends up on the stack
+                    a_ILGenerator.Emit(OpCodes.Add);
+                    //Check if PlayerX <= ObjectX + ObjectWidth
+                    a_ILGenerator.Emit(OpCodes.Bgt, endRectangleLabel);
+
+                    //Load PlayerX onto stack
+                    a_ILGenerator.Emit(OpCodes.Ldloc_2);
+                    //Load PlayerHeight onto stack
+                    a_ILGenerator.Emit(OpCodes.Ldloc, 4);
+                    //Add PlayerX to PlayerHeight, which ends up on the stack
+                    a_ILGenerator.Emit(OpCodes.Add);
+                    //Load hard coded rectangle Y onto stack
+                    a_ILGenerator.Emit(OpCodes.Ldc_I4, rect.Y);
+                    //Check if PlayerX + PlayerW >= Rectangle Y
+                    a_ILGenerator.Emit(OpCodes.Blt, endRectangleLabel);
+                    //Load PlayerX onto stack
+                    a_ILGenerator.Emit(OpCodes.Ldloc_2);
+                    //Load ObjectX onto stack
+                    a_ILGenerator.Emit(OpCodes.Ldc_I4, rect.Y);
+                    //Load Object Height onto stack
                     a_ILGenerator.Emit(OpCodes.Ldc_I4, rect.Height);
-                    //Create new rectangle
-                    a_ILGenerator.Emit(OpCodes.Newobj, rect.GetType().GetConstructor(new Type[] { typeof(int), typeof(int), typeof(int), typeof(int) }));
-                    //Store the rectangle in some local position
-                    a_ILGenerator.Emit(OpCodes.Stloc_0);
-                    //Load the adress of the rectangle
-                    a_ILGenerator.Emit(OpCodes.Ldloca, 0);
-                    //Load player rectangle by value
-                    a_ILGenerator.Emit(OpCodes.Ldarg_1);
-                    //Call intersection function
-                    a_ILGenerator.EmitCall(OpCodes.Call, checkMethod, null);
-                    //If we intersect jump to true label
-                    a_ILGenerator.Emit(OpCodes.Brtrue, a_TrueLabel);
+                    //Add the objectX to object Height, which ends up on the stack
+                    a_ILGenerator.Emit(OpCodes.Add);
+                    //Check if PlayerX <= ObjectX + ObjectWidth
+                    a_ILGenerator.Emit(OpCodes.Blt, a_TrueLabel);
+                    a_ILGenerator.MarkLabel(endRectangleLabel);
+
+                    //Old method
+                    //a_ILGenerator.Emit(OpCodes.Ldc_I4, rect.X); //Load arguments for object rectangle onto stack
+                    //a_ILGenerator.Emit(OpCodes.Ldc_I4, rect.Y);
+                    //a_ILGenerator.Emit(OpCodes.Ldc_I4, rect.Width);
+                    //a_ILGenerator.Emit(OpCodes.Ldc_I4, rect.Height);
+                    ////Create new rectangle
+                    //a_ILGenerator.Emit(OpCodes.Newobj, rect.GetType().GetConstructor(new Type[] { typeof(int), typeof(int), typeof(int), typeof(int) }));
+                    ////Store the rectangle in some local position
+                    //a_ILGenerator.Emit(OpCodes.Stloc_0);
+                    ////Load the address of the rectangle
+                    //a_ILGenerator.Emit(OpCodes.Ldloca, 0);
+                    ////Load player rectangle by value
+                    //a_ILGenerator.Emit(OpCodes.Ldarg_1);
+                    ////Call intersection function
+                    //a_ILGenerator.EmitCall(OpCodes.Call, checkMethod, null);
+                    ////If we intersect jump to true label
+                    //a_ILGenerator.Emit(OpCodes.Brtrue, a_TrueLabel);                    
                 }
             }
 
