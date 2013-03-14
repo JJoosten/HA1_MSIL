@@ -29,7 +29,6 @@ namespace HA1_Assembly
         private Action<List<Object>, List<Object>> m_GenInitialize;
         private Action<SpriteBatch, Texture2D[]> m_GenGameDraw;
 
-
 		public HA1Game()
 			: base()
 		{
@@ -48,7 +47,8 @@ namespace HA1_Assembly
 		{
 			m_Player.Sprite = Content.Load<Texture2D>(@"Sprites\TileSet.png");
 			m_Player.SpriteRectangle = new Rectangle(5, 5, 32, 32);
-		  
+			m_Player.InitBullets();
+
 			//m_CodeGenerator.ParseDataLayout( Directory.GetCurrentDirectory() + @"\Content\DataStructures.xml");
 			
 			BehaviorTypesXmlReader behaviorTypesXml = new BehaviorTypesXmlReader();
@@ -145,6 +145,7 @@ namespace HA1_Assembly
 				Exit();
 
 			m_Player.Update(a_GameTime);
+			m_Player.UpdateBullets(a_GameTime);
 
 			// insert call to DLL update method
             //m_GenGameUpdate(m_Movables, 1000.0f / (float)a_GameTime.TotalGameTime.Milliseconds);
@@ -171,6 +172,8 @@ namespace HA1_Assembly
 
 			Matrix mat = Matrix.CreateTranslation(-m_Player.Position);
 			m_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, null, mat);
+
+			m_Player.DrawBullets(a_GameTime, m_SpriteBatch);
 
             // insert call to DLL render method
             Texture2D[] textureArray = m_SceneXmlReader.Sprites.ToArray();
