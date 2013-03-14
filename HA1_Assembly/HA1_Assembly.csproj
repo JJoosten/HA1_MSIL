@@ -37,6 +37,7 @@
   <ItemGroup>
     <Compile Include="BehaviorTypesXmlReader.cs" />
     <Compile Include="Behaviors.cs" />
+    <Compile Include="Bullet.cs" />
     <Compile Include="CodeParser.cs" />
     <Compile Include="CustomAssemblyBuilder.cs" />
     <Compile Include="GameAssemblyBuilder.cs" />

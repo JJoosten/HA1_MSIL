@@ -31,7 +31,6 @@ namespace HA1_Assembly
         private Action<List<Object>, List<Object>> m_GenInitialize;
         private Action<SpriteBatch, Texture2D[]> m_GenGameDraw;
 
-
 		public HA1Game()
 			: base()
 		{
@@ -54,6 +53,7 @@ namespace HA1_Assembly
             // setup player
 			m_Player.Sprite = Content.Load<Texture2D>(@"Sprites\TileSet.png");
 			m_Player.SpriteRectangle = new Rectangle(466, 301, 40, 195);
+			m_Player.InitBullets();
 
             // setup dynamic game and create genGame.dll
 			BehaviorTypesXmlReader behaviorTypesXml = new BehaviorTypesXmlReader();
@@ -79,7 +79,7 @@ namespace HA1_Assembly
             foreach (Object obj in staticCollidableList)
                 staticRectangles.Add(GetRectangleFromObject(obj));
 
-            AssemblyQuadTree quadTree = new AssemblyQuadTree(new Rectangle(0, 0, 1280, 720), staticRectangles);
+            AssemblyQuadTree quadTree = new AssemblyQuadTree(new Rectangle(0, 0, 800, 480), staticRectangles);
 
 			// this class will generate the game assembly
 			GameAssemblyBuilder gameAssemblyBuilder = new GameAssemblyBuilder();
@@ -134,6 +134,7 @@ namespace HA1_Assembly
 				Exit();
 
 			m_Player.Update(a_GameTime);
+			m_Player.UpdateBullets(a_GameTime);
 
             //Collision detection
             Rectangle playerRect = new Rectangle((int)m_Player.Position.X, (int)m_Player.Position.Y, (int)m_Player.SpriteRectangle.Width, (int)m_Player.SpriteRectangle.Height);
@@ -158,6 +159,8 @@ namespace HA1_Assembly
 
 			Matrix mat = Matrix.CreateTranslation(-m_Player.Position);
 			m_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, null, mat);
+
+			m_Player.DrawBullets(a_GameTime, m_SpriteBatch);
 
             // insert call to DLL render method
             Texture2D[] textureArray = m_SceneXmlReader.Sprites.ToArray();
