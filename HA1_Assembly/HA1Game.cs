@@ -79,7 +79,7 @@ namespace HA1_Assembly
                 staticRectangles.Add(GetRectangleFromObject(obj));
             }
 
-            AssemblyQuadTree quadTree = new AssemblyQuadTree(new Rectangle(0, 0, 1280, 720), staticRectangles);
+            AssemblyQuadTree quadTree = new AssemblyQuadTree(new Rectangle(0, 0, 800, 480), staticRectangles);
 
         
 			// this class will generate the game assembly
