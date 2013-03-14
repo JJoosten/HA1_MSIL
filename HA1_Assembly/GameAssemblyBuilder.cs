@@ -82,7 +82,7 @@ namespace HA1_Assembly
 			gen.Emit(OpCodes.Ret);
 		}
 
-        public void GenerateDrawFunction(List<Object> a_StaticDrawableObjects, List<Object> a_DynamicDrawableObjects)
+        public void GenerateDrawFunction(List<Object> a_StaticDrawableObjects)
         {
             MethodBuilder mb = m_TypeBuilder.DefineMethod("Draw", MethodAttributes.Public | MethodAttributes.HideBySig, typeof(void), new Type[] { typeof(SpriteBatch), typeof(Texture2D[]) });
             ILGenerator ilGenerator = mb.GetILGenerator();

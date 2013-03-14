@@ -26,13 +26,13 @@ namespace HA1_Assembly
             return objectList;
         }
 
-        public List<Object> GetStaticObjectList()
+        public List<Object> GetStaticObjectList( string type)
         {
-            List<Object> staticList = new List<Object>();            
-            List<Object> collidableList = GetObjectList( "Collidable" );
+            List<Object> staticList = new List<Object>();
+            List<Object> typeComparisonList = GetObjectList(type);
             List<Object> movableList = GetObjectList( "Movable" );
 
-            foreach( Object obj in collidableList )
+            foreach (Object obj in typeComparisonList)
             {
                 if ( movableList.Contains( obj ) == false )
                 {

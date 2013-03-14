@@ -15,6 +15,9 @@ namespace HA1_Assembly
 {
 	public class HA1Game : Game
 	{
+        private static uint m_ScreenWidth = 1280;
+        private static uint m_ScreenHeight = 720;
+
 		private GraphicsDeviceManager m_Graphics;
 		private SpriteBatch m_SpriteBatch;
 		private CodeParser m_CodeGenerator;
@@ -24,7 +27,6 @@ namespace HA1_Assembly
 		private Object m_GenGame;
 
         private List<Object> m_Movables;
-        private Action<List<Object>, float> m_GenGameUpdate;
         private Func<Rectangle, bool> m_GenStaticCollisionCheck;
         private Action<List<Object>, List<Object>> m_GenInitialize;
         private Action<SpriteBatch, Texture2D[]> m_GenGameDraw;
@@ -34,6 +36,9 @@ namespace HA1_Assembly
 			: base()
 		{
 			m_Graphics = new GraphicsDeviceManager( this );
+            m_Graphics.PreferredBackBufferWidth = 1280;
+            m_Graphics.PreferredBackBufferHeight = 720;
+            m_Graphics.ApplyChanges();
 
 			m_SpriteBatch = new SpriteBatch(m_Graphics.GraphicsDevice);
 
@@ -46,11 +51,11 @@ namespace HA1_Assembly
 
 		protected override void Initialize()
 		{
+            // setup player
 			m_Player.Sprite = Content.Load<Texture2D>(@"Sprites\TileSet.png");
-			m_Player.SpriteRectangle = new Rectangle(5, 5, 32, 32);
-		  
-			//m_CodeGenerator.ParseDataLayout( Directory.GetCurrentDirectory() + @"\Content\DataStructures.xml");
-			
+			m_Player.SpriteRectangle = new Rectangle(466, 301, 40, 195);
+
+            // setup dynamic game and create genGame.dll
 			BehaviorTypesXmlReader behaviorTypesXml = new BehaviorTypesXmlReader();
 			behaviorTypesXml.Parse(Directory.GetCurrentDirectory() + @"\Content\BehaviorTypes.xml");
 
@@ -66,39 +71,27 @@ namespace HA1_Assembly
 
 			m_SceneManager = new SceneManager();
 			m_SceneManager.ParseObjects(m_SceneXmlReader.Objects, gameTypesXml.GameTypes, behaviorTypesXml.GameBehaviorProperties);
-			//Retrieve lists with different type of behaviors
-			List<Object> collidableList = m_SceneManager.GetObjectList("Collidable");
-			List<Object> drawableList = m_SceneManager.GetObjectList("Drawable");
-			List<Object> movableList = m_SceneManager.GetObjectList("Movable");
 
-            List<Object> staticList = m_SceneManager.GetStaticObjectList();
-            //TEST JURRE
+            List<Object> staticCollidableList = m_SceneManager.GetStaticObjectList("Collidable");
+            List<Object> staticDrawableList = m_SceneManager.GetStaticObjectList("Drawable");
+
             List<Rectangle> staticRectangles = new List<Rectangle>();
-            foreach (Object obj in staticList)
-            {
+            foreach (Object obj in staticCollidableList)
                 staticRectangles.Add(GetRectangleFromObject(obj));
-            }
 
             AssemblyQuadTree quadTree = new AssemblyQuadTree(new Rectangle(0, 0, 1280, 720), staticRectangles);
 
-        
 			// this class will generate the game assembly
 			GameAssemblyBuilder gameAssemblyBuilder = new GameAssemblyBuilder();
 			gameAssemblyBuilder.GenerateGameObjects(m_SceneXmlReader.Objects, gameTypesXml.GameTypes);
-            gameAssemblyBuilder.GenerateDrawFunction(drawableList, drawableList);
+            gameAssemblyBuilder.GenerateDrawFunction(staticDrawableList);
             gameAssemblyBuilder.GenerateStaticCollisionFunction(quadTree);
 			gameAssemblyBuilder.Save();
 
+            // loads game dll (genGame.dll)
 			LoadGameDLL();
 
-            //Exit();
-
 			base.Initialize();
-
-            Rectangle rect = new Rectangle();
-            Rectangle rect2 = new Rectangle();
-            rect.Intersects(rect2);
-
 		}
 
 		protected override void LoadContent()
@@ -129,10 +122,6 @@ namespace HA1_Assembly
             m_GenInitialize = (Action<List<Object>, List<Object>>)Delegate.CreateDelegate(typeof(Action<List<Object>, List<Object>>), m_GenGame, initialize);
             m_GenInitialize(m_SceneXmlReader.Objects, m_Movables);
 
-            // create update delegate
-            //var update = genGameType.GetMethod("Update");
-            //m_GenGameUpdate = (Action<List<Object>, float>)Delegate.CreateDelegate(typeof(Action<List<Object>, float>), m_GenGame, update);
-
             // create draw delegate
             var draw = genGameType.GetMethod("Draw");
             m_GenGameDraw = (Action<SpriteBatch, Texture2D[]>)Delegate.CreateDelegate(typeof(Action<SpriteBatch, Texture2D[]>), m_GenGame, draw);
@@ -146,9 +135,6 @@ namespace HA1_Assembly
 
 			m_Player.Update(a_GameTime);
 
-			// insert call to DLL update method
-            //m_GenGameUpdate(m_Movables, 1000.0f / (float)a_GameTime.TotalGameTime.Milliseconds);
-
             //Collision detection
             Rectangle playerRect = new Rectangle((int)m_Player.Position.X, (int)m_Player.Position.Y, (int)m_Player.SpriteRectangle.Width, (int)m_Player.SpriteRectangle.Height);
 
@@ -158,6 +144,7 @@ namespace HA1_Assembly
             {
                 Console.WriteLine("Check");
             }
+
 			base.Update(a_GameTime);
 		}
 
