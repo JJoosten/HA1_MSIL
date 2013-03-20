@@ -79,7 +79,7 @@ namespace HA1_Assembly
             foreach (Object obj in staticCollidableList)
                 staticRectangles.Add(GetRectangleFromObject(obj));
 
-            AssemblyQuadTree quadTree = new AssemblyQuadTree(new Rectangle(0, 0, 800, 480), staticRectangles);
+            AssemblyQuadTree quadTree = new AssemblyQuadTree(new Rectangle( -3000, -3000, 6000, 6000), staticRectangles);
 
 			// this class will generate the game assembly
 			GameAssemblyBuilder gameAssemblyBuilder = new GameAssemblyBuilder();
@@ -137,8 +137,9 @@ namespace HA1_Assembly
 			m_Player.UpdateBullets(a_GameTime);
 
             //Collision detection
-            Rectangle playerRect = new Rectangle((int)m_Player.Position.X, (int)m_Player.Position.Y, (int)m_Player.SpriteRectangle.Width, (int)m_Player.SpriteRectangle.Height);
+            Rectangle playerRect = new Rectangle((int)m_Player.Position.X + 640, (int)m_Player.Position.Y + 360, (int)m_Player.SpriteRectangle.Width, (int)m_Player.SpriteRectangle.Height);
 
+            Console.WriteLine(string.Format("X: {0} Y: {1} OffsetX {2} OffsetY {3}", m_Player.Position.X, m_Player.Position.Y, (int)m_Player.Position.X + 640, (int)m_Player.Position.Y + 360));
 
             bool check = (bool)m_GenStaticCollisionCheck(playerRect);
             if (check)
@@ -153,7 +154,7 @@ namespace HA1_Assembly
 		{
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
-			Matrix mat = Matrix.CreateTranslation(-m_Player.Position);
+            Matrix mat = Matrix.CreateTranslation(-m_Player.Position);
 			m_SpriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, null, mat);
 
             // insert call to DLL render method
