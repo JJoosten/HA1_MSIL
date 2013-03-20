@@ -52,7 +52,7 @@ namespace HA1_Assembly
 		{
             // setup player
 			m_Player.Sprite = Content.Load<Texture2D>(@"Sprites\TileSet.png");
-			m_Player.SpriteRectangle = new Rectangle(466, 301, 40, 195);
+			m_Player.SpriteRectangle = new Rectangle(467, 302, 38, 192);
 			m_Player.InitBullets();
 
             // setup dynamic game and create genGame.dll
