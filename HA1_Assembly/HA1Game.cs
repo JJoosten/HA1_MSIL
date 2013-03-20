@@ -153,21 +153,23 @@ namespace HA1_Assembly
 		{
 			GraphicsDevice.Clear(Color.CornflowerBlue);
 
-			m_SpriteBatch.Begin();
-			m_Player.Draw(a_GameTime, m_SpriteBatch);
-			m_SpriteBatch.End();
-
 			Matrix mat = Matrix.CreateTranslation(-m_Player.Position);
 			m_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, null, mat);
-
-			m_Player.DrawBullets(a_GameTime, m_SpriteBatch);
 
             // insert call to DLL render method
             Texture2D[] textureArray = m_SceneXmlReader.Sprites.ToArray();
             m_GenGameDraw(m_SpriteBatch, textureArray);
 
 			m_SpriteBatch.End();
-		
+
+			m_SpriteBatch.Begin();
+			m_Player.Draw(a_GameTime, m_SpriteBatch);
+			m_SpriteBatch.End();
+
+			m_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, null, mat);
+			m_Player.DrawBullets(a_GameTime, m_SpriteBatch);
+			m_SpriteBatch.End();
+
 			base.Draw(a_GameTime);
 		}
 

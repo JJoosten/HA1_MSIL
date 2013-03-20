@@ -9,4 +9,7 @@
 		<Behavior name="Drawable" />
 		<Behavior name="Collidable" />
 	</Type>
+	<Type name="Water" >
+		<Behavior name="Drawable" />
+	</Type>
 </Types>

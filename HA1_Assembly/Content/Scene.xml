@@ -5,7 +5,7 @@
 	
 	<Tree Name="Tree3" Sprite="Sprites/TileSet.png" AABBMin="0,0" AABBMax="20,20" SpriteRectangleMin="0,0" SpriteRectangleMax="20,20" Position="200,360" Scale="1,1" Rotation="0,0" Velocity="1.1,1.2" />
 	<Tree Name="Tree4" Sprite="Sprites/TileSet.png" AABBMin="0,0" AABBMax="20,20" SpriteRectangleMin="0,0" SpriteRectangleMax="20,20" Position="600,360" Scale="1,1" Rotation="0,0" Velocity="1.1,1.2" />
-	
-	
+
+	<Water Name="Water1" Sprite="Sprites/Water.png" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="40,40" Position="0,0" Scale="1,1" Rotation="0,0" />
 	
 </Scene>

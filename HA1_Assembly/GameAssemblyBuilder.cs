@@ -105,16 +105,33 @@ namespace HA1_Assembly
                     propertyInfo = type.GetProperty("SpriteRectangle");
                     Rectangle rectangle = (Rectangle)propertyInfo.GetValue(drawable, null);
 
+					propertyInfo = type.GetProperty("SpriteRepeat");
+					Vector2 spriteRepeat = (Vector2)propertyInfo.GetValue(drawable, null);
+					if (spriteRepeat.X == 0) spriteRepeat.X = 1;
+					if (spriteRepeat.Y == 0) spriteRepeat.Y = 1;
+
                     propertyInfo = type.GetProperty("Rotation");
                     float rotation = (float)propertyInfo.GetValue(drawable, null);
 
                     propertyInfo = type.GetProperty("Scale");
                     Vector2 scale = (Vector2)propertyInfo.GetValue(drawable, null);
 
-                    ilGenerator.Emit(OpCodes.Ldarg_1); // loads the local argument spritebatch on the evaluation stack
-                    ilGenerator.Emit(OpCodes.Ldarg_2); // loads the local argument texture array on the evaluation stack
+					Vector2 offset = new Vector2();
+					for (int y = 0; y < spriteRepeat.Y; y++)
+					{
+						for (int x = 0; x < spriteRepeat.X; x++)
+						{
+							offset.X = rectangle.Width * x;
+							offset.Y = rectangle.Height * y;
 
-                    Behaviors.DrawStaticSprite(ilGenerator, textureID, position, rectangle, rotation, scale);
+							ilGenerator.Emit(OpCodes.Ldarg_1); // loads the local argument spritebatch on the evaluation stack
+							ilGenerator.Emit(OpCodes.Ldarg_2); // loads the local argument texture array on the evaluation stack
+
+							Behaviors.DrawStaticSprite(ilGenerator, textureID, position + offset, rectangle, rotation, scale);
+						}
+						
+					}
+                    
                 }
             }
 

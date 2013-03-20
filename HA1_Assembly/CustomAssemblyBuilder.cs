@@ -113,7 +113,7 @@ namespace HA1_Assembly
 			setIl.Emit(OpCodes.Ldarg_1);
 			// Store the value currently on the stack in the field specified as parameter in the object on the stack
 			setIl.Emit(OpCodes.Stfld, fieldBuilder);
-			// Returns the method
+			// Returns the setter
 			setIl.Emit(OpCodes.Ret);
 
 			propertyBuilder.SetGetMethod(getPropMthdBldr);

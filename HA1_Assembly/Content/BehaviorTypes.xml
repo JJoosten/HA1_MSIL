@@ -4,6 +4,7 @@
     <Property name="SpriteID" type="int" />
 		<Property name="Sprite" type="Texture2D" />
 		<Property name="SpriteRectangle" type="Rectangle" />
+		<Property name="SpriteRepeat"	type="Vector2" />
 		<Property name="Position" type="Vector2" />
 		<Property name="Scale" type="Vector2" />
 		<Property name="Rotation" type="float" />

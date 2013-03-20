@@ -74,6 +74,7 @@
     <Content Include="Content\Icon.ico" />
     <Content Include="Content\Scene.xml" />
     <Content Include="Content\Sprites\TileSet.png" />
+    <Content Include="Content\Sprites\Water.png" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
