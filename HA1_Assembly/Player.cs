@@ -42,37 +42,36 @@ namespace HA1_Assembly
 			m_BulletRect = new Rectangle(37, 169, 32, 32);
 
 			m_MaxBullets = 10;
-			m_Bullets = new Bullet[m_MaxBullets];
+			
+            m_Bullets = new Bullet[m_MaxBullets];
 			for (uint i = 0; i < m_MaxBullets; i++)
-			{
 				m_Bullets[i] = new Bullet();
-			}
+
 			m_NumActiveBulets = 0;
 		}
   
 		public void Update(GameTime a_GameTime)
 		{
-            float dtSpeed = ((float)a_GameTime.ElapsedGameTime.Milliseconds / 1000.0f) * 100.0f;
+            float dtSpeed = ((float)a_GameTime.ElapsedGameTime.Milliseconds / 1000.0f) * 1000.0f;
+
+            // move player
+            Vector3 addativeDirection = new Vector3(0);
             if (Keyboard.GetState().IsKeyDown(Keys.Left) || Keyboard.GetState().IsKeyDown(Keys.A))
-			{
-                Velocity += new Vector3(-8.0f, 0, 0) * dtSpeed;
-			}
+                addativeDirection = new Vector3(-1.0f, 0, 0);
 			else if (Keyboard.GetState().IsKeyDown(Keys.Right) || Keyboard.GetState().IsKeyDown(Keys.D))
-			{
-                Velocity += new Vector3(8.0f, 0, 0) * dtSpeed;
-			}
+                addativeDirection = new Vector3(1.0f, 0, 0);
+
 			if (Keyboard.GetState().IsKeyDown(Keys.Up) || Keyboard.GetState().IsKeyDown(Keys.W))
-			{
-                Velocity += new Vector3(0, -20.0f, 0) * dtSpeed;
-			}
-			if (Keyboard.GetState().IsKeyDown(Keys.Down) || Keyboard.GetState().IsKeyDown(Keys.S))
-			{
-                Velocity += new Vector3(0, 10.0f, 0) * dtSpeed;
-			}
+                addativeDirection += new Vector3(0, -1.0f, 0);
+			else if (Keyboard.GetState().IsKeyDown(Keys.Down) || Keyboard.GetState().IsKeyDown(Keys.S))
+                addativeDirection += new Vector3(0, 1.0f, 0);
+
 			if (m_PrevKeyboardState.IsKeyUp(Keys.Space) && Keyboard.GetState().IsKeyDown(Keys.Space))
-			{
 				ShootBullet();
-			}
+
+            if( addativeDirection.LengthSquared() != 0)
+                addativeDirection.Normalize();
+            Velocity += addativeDirection * dtSpeed; 
 
 			Velocity += Acceleration * a_GameTime.ElapsedGameTime.Milliseconds * 0.001f;
             Position += Velocity * a_GameTime.ElapsedGameTime.Milliseconds * 0.001f;
@@ -85,7 +84,6 @@ namespace HA1_Assembly
                 if (diff >= MathHelper.ToRadians(180) ||
                     diff <= -MathHelper.ToRadians(180))
                     Rotation *= -1;
-
 
                 Rotation += diff * 0.1f;
             }
