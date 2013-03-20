@@ -8,6 +8,7 @@
 		<Property name="Position" type="Vector2" />
 		<Property name="Scale" type="Vector2" />
 		<Property name="Rotation" type="float" />
+    <Property name="Layer" type="float" />
 	</Behavior>
 	<Behavior name="Movable" >
 		<Property name="Position" type="Vector2" />

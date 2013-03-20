@@ -11,7 +11,7 @@ namespace HA1_Assembly
 {
     public static class Behaviors
     {
-        public static void DrawStaticSprite(ILGenerator ilGenerator, int texture_ID, Vector2 position, Rectangle textureRectangle, float rotation, Vector2 scale)
+        public static void DrawStaticSprite(ILGenerator ilGenerator, int texture_ID, Vector2 position, Rectangle textureRectangle, float rotation, Vector2 scale, float layer)
         {
             // ldarg_1 is already loaded on the stack by caller function(spritebatch)
             // ldarg_2 is already loaded on the stack by caller function(texture)
@@ -57,7 +57,7 @@ namespace HA1_Assembly
             ilGenerator.Emit(OpCodes.Ldc_I4_0);
             
             // generate layer and push on evaluation stack
-            ilGenerator.Emit(OpCodes.Ldc_R4, 0.0f);
+            ilGenerator.Emit(OpCodes.Ldc_R4, layer);
 
 
 
