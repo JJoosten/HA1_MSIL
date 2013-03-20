@@ -9,21 +9,21 @@ namespace HA1_Assembly
 {
 	public class GameTypesAssemblyBuilder
 	{
-		private CustomAssemblyBuilder assemblyBuilder;
+		private CustomAssemblyBuilder m_AssemblyBuilder;
 
 		public GameTypesAssemblyBuilder()
 		{
 		}
 
-		public void GenerateAssembly( List<GameType> gameTypes )
+		public void GenerateAssembly( List<GameType> a_GameTypes )
 		{
-			assemblyBuilder = new CustomAssemblyBuilder("GameTypes");
+			m_AssemblyBuilder = new CustomAssemblyBuilder("GameTypes");
 
-			foreach (GameType gameType in gameTypes)
+			foreach (GameType gameType in a_GameTypes)
 			{
-				assemblyBuilder.CreateType(gameType.Name, gameType.Properties);
+				m_AssemblyBuilder.CreateType(gameType.Name, gameType.Properties);
 			}
-			assemblyBuilder.Save();
+			m_AssemblyBuilder.Save();
 		}
 	}
 }

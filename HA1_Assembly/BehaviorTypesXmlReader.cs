@@ -17,9 +17,9 @@ namespace HA1_Assembly
 			GameBehaviorProperties = new Dictionary<string, List<PropertyField>>();
 		}
 
-		public void Parse( string filename )
+		public void Parse( string a_Filename )
 		{
-			XmlReader xmlReader = XmlReader.Create(filename);
+			XmlReader xmlReader = XmlReader.Create(a_Filename);
 
 			List<PropertyField> properties = null;
 			while (xmlReader.Read())

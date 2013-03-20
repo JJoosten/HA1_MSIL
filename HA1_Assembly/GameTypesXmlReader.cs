@@ -16,9 +16,9 @@ namespace HA1_Assembly
 			GameTypes = new List<GameType>();
 		}
 
-		public void Parse(string filename, Dictionary<string, List<PropertyField>> gameBehaviorProperties)
+		public void Parse(string a_Filename, Dictionary<string, List<PropertyField>> a_GameBehaviorProperties)
 		{
-			XmlReader xmlReader = XmlReader.Create(filename);
+			XmlReader xmlReader = XmlReader.Create(a_Filename);
 
 			GameType gameType = null;
 			while (xmlReader.Read())
@@ -37,7 +37,7 @@ namespace HA1_Assembly
 					{
 						string behaviorName = xmlReader.GetAttribute("name");
 
-						foreach (string item in gameBehaviorProperties.Keys)
+						foreach (string item in a_GameBehaviorProperties.Keys)
 						{
 							if (behaviorName == item)
 							{
@@ -49,13 +49,13 @@ namespace HA1_Assembly
 			}
 		}
 
-		public void ParseProperties(Dictionary<string, List<PropertyField>> gameBehaviorProperties)
+		public void ParseProperties(Dictionary<string, List<PropertyField>> a_GameBehaviorProperties)
 		{
 			foreach (GameType gameType in GameTypes)
 			{
 				gameType.Properties.Add("Name", new PropertyField() { PropertyType = typeof(String), PropertyName = "Name" });
 
-				foreach (KeyValuePair<string, List<PropertyField>> item in gameBehaviorProperties)
+				foreach (KeyValuePair<string, List<PropertyField>> item in a_GameBehaviorProperties)
 				{
 					//Check whether or not the current game type has a behavior
 					bool hasBehavior = false;
