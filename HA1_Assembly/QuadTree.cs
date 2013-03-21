@@ -161,7 +161,7 @@ namespace HA1_Assembly
                     //Add the objectX to object Height, which ends up on the stack
                     a_ILGenerator.Emit(OpCodes.Add);
                     //Check if PlayerX <= ObjectX + ObjectWidth
-                    a_ILGenerator.Emit(OpCodes.Bge, endRectangleLabel);
+                    a_ILGenerator.Emit(OpCodes.Bgt, endRectangleLabel);
                     a_ILGenerator.Emit(OpCodes.Ldc_I4, pair.Item2);
                     a_ILGenerator.Emit(OpCodes.Br, a_TrueLabel);
                     a_ILGenerator.MarkLabel(endRectangleLabel);                  

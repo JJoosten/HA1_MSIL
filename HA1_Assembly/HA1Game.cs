@@ -220,7 +220,7 @@ namespace HA1_Assembly
 
             //Console.WriteLine(string.Format("X: {0} Y: {1} OffsetX {2} OffsetY {3}", m_Player.Position.X, m_Player.Position.Y, (int)m_Player.Position.X + 640, (int)m_Player.Position.Y + 360));
 
-            int collisionHash = quadTree.CheckForCollision(playerRect); //(int)m_GenStaticCollisionCheck(playerRect);
+            int collisionHash = (int)m_GenStaticCollisionCheck(playerRect);//quadTree.CheckForCollision(playerRect); //(
             if (collisionHash != 0)
             {
                 //Collided so game over
