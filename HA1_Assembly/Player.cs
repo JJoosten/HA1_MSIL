@@ -100,6 +100,7 @@ namespace HA1_Assembly
             
             Velocity *= 0.95f;
 
+
 			m_PrevKeyboardState = Keyboard.GetState();
 		}
 

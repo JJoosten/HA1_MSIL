@@ -63,6 +63,7 @@ namespace HA1_Assembly
             // setup player
 			m_Player.Sprite = Content.Load<Texture2D>(@"Sprites\TileSet.png");
 			m_Player.SpriteRectangle = new Rectangle(467, 302, 38, 192);
+            m_Player.AABB = new Rectangle(0, 0, 38, 192);
 			m_Player.InitBullets();
 
             // setup dynamic game and create genGame.dll
@@ -293,16 +294,39 @@ namespace HA1_Assembly
 			UpdateDynamicObjects(a_GameTime);
 
             //Collision detection
-            Rectangle playerRect = new Rectangle((int)m_Player.Position.X + 640 - ( (int)m_Player.SpriteRectangle.Width / 2 ), (int)m_Player.Position.Y + 360 - ( (int)m_Player.SpriteRectangle.Height / 2 ), (int)m_Player.SpriteRectangle.Width, (int)m_Player.SpriteRectangle.Height);
             Matrix rotMat = Matrix.CreateRotationZ(m_Player.Rotation);
+            Vector2 playerRectTL = new Vector2((float)m_Player.AABB.X, (float)m_Player.AABB.Y);
+            Vector2 playerRectBR = playerRectTL + new Vector2((float)m_Player.AABB.Width, (float)m_Player.AABB.Height);
+            playerRectTL = Vector2.Transform(playerRectTL, rotMat);
+            playerRectBR = Vector2.Transform(playerRectBR, rotMat);
 
-            //Console.WriteLine(string.Format("X: {0} Y: {1} OffsetX {2} OffsetY {3}", m_Player.Position.X, m_Player.Position.Y, (int)m_Player.Position.X + 640, (int)m_Player.Position.Y + 360));
+            // calculate new bounds
+            float minX = playerRectTL.X < playerRectBR.X ? playerRectTL.X : playerRectBR.X;
+            float minY = playerRectTL.Y < playerRectBR.Y ? playerRectTL.Y : playerRectBR.Y;
+            float maxX = playerRectTL.X > playerRectBR.X ? playerRectTL.X : playerRectBR.X;
+            float maxY = playerRectTL.Y > playerRectBR.Y ? playerRectTL.Y : playerRectBR.Y;
+            float width = maxX - minX;
+            float height = maxY - minY;
+
+            // new aabb
+            Rectangle playerRect = new Rectangle();
+            playerRect.X = (int)minX;
+            playerRect.Y = (int)minY;
+            playerRect.Width = (int)width;
+            playerRect.Height = (int)height;
+
+            // set aabb to player position
+            playerRect.X = (int)m_Player.Position.X + 640 - ((int)playerRect.Width / 2);
+            playerRect.Y = (int)m_Player.Position.Y + 360 - ((int)playerRect.Height / 2);
+            playerRect.Width = (int)width;
+            playerRect.Height = (int)height;
+
 
             int collisionHash = quadTree.CheckForCollision(playerRect); //(int)m_GenStaticCollisionCheck(playerRect);
             if (collisionHash != 0)
             {
                 //Collided so game over
-                Console.WriteLine( String.Format("Hitted a object with hash {0}", collisionHash ) );
+                //Console.WriteLine( String.Format("Hitted a object with hash {0}", collisionHash ) );
             }
 
             int RockHash = ("Rock").GetHashCode();
