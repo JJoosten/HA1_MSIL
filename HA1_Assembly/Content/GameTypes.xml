@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?> 
 <Types>
-	<Type name="Animal" >
-		<Behavior name="Drawable" />
-		<Behavior name="Collidable" />
-		<Behavior name="Movable" />
-	</Type>
-	<Type name="Tree" >
+	<Type name="Rock" >
 		<Behavior name="Drawable" />
 		<Behavior name="Collidable" />
 	</Type>
@@ -14,5 +9,10 @@
 	</Type>
 	<Type name="Sand" >
 		<Behavior name="Drawable" />
+	</Type>
+	<Type name="Airplane">
+		<Behavior name="Drawable" />
+		<Behavior name="Collidable" />
+		<Behavior name="Movable" />
 	</Type>
 </Types>
