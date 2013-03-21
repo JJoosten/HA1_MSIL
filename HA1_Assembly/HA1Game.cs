@@ -32,6 +32,8 @@ namespace HA1_Assembly
         private Action<List<Object>, List<Object>> m_GenInitialize;
         private Action<SpriteBatch, Texture2D[]> m_GenGameDraw;
 
+		private List<Object> m_DynamicObjects;
+
 		public HA1Game()
 			: base()
 		{
@@ -77,6 +79,7 @@ namespace HA1_Assembly
 
             List<Object> staticCollidableList = m_SceneManager.GetStaticObjectList("Collidable");
             List<Object> staticDrawableList = m_SceneManager.GetStaticObjectList("Drawable");
+			m_DynamicObjects = m_SceneManager.GetObjectList("Movable");
 
             List<Tuple<Rectangle, int>> staticRectangles = new List<Tuple<Rectangle, int>>();
             foreach (Object obj in staticCollidableList)
@@ -209,6 +212,8 @@ namespace HA1_Assembly
 			m_Player.Update(a_GameTime);
 			m_Player.UpdateBullets(a_GameTime);
 
+			UpdateDynamicObjects(a_GameTime);
+
             //Collision detection
             Rectangle playerRect = new Rectangle((int)m_Player.Position.X + 640 - ( (int)m_Player.SpriteRectangle.Width / 2 ), (int)m_Player.Position.Y + 360 - ( (int)m_Player.SpriteRectangle.Height / 2 ), (int)m_Player.SpriteRectangle.Width, (int)m_Player.SpriteRectangle.Height);
             Matrix rotMat = Matrix.CreateRotationZ(m_Player.Rotation);
@@ -237,6 +242,28 @@ namespace HA1_Assembly
 			base.Update(a_GameTime);
 		}
 
+		private void UpdateDynamicObjects(GameTime a_GameTime)
+		{
+			foreach (Object item in m_DynamicObjects)
+			{
+				Type type = item.GetType();
+				PropertyInfo propertyInfoPos = type.GetProperty("Position");
+				Vector2 position = (Vector2)propertyInfoPos.GetValue(item, null);
+
+				PropertyInfo propertyInfoVel = type.GetProperty("Velocity");
+				Vector2 velocity = (Vector2)propertyInfoVel.GetValue(item, null);
+
+				PropertyInfo propertyInfoAcc = type.GetProperty("Acceleration");
+				Vector2 acceleration = (Vector2)propertyInfoAcc.GetValue(item, null);
+
+				velocity += acceleration * a_GameTime.ElapsedGameTime.Milliseconds * 0.001f;
+				position += velocity * a_GameTime.ElapsedGameTime.Milliseconds * 0.001f;
+
+				propertyInfoVel.SetValue(item, velocity, null);
+				propertyInfoPos.SetValue(item, position, null);
+			}
+		}
+
 		protected override void Draw(GameTime a_GameTime)
 		{
 			GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -255,10 +282,49 @@ namespace HA1_Assembly
 			m_SpriteBatch.End();
 
 			m_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, mat);
+
+			DrawDynamicObjects(a_GameTime);
+
 			m_Player.DrawBullets(a_GameTime, m_SpriteBatch);
 			m_SpriteBatch.End();
 
 			base.Draw(a_GameTime);
+		}
+
+		private void DrawDynamicObjects(GameTime a_GameTime)
+		{
+			Texture2D[] textureArray = m_SceneXmlReader.Sprites.ToArray();
+			foreach (Object drawable in m_DynamicObjects)
+			{
+				Type type = drawable.GetType();
+				PropertyInfo propertyInfo = type.GetProperty("SpriteID");
+				int textureID = (int)propertyInfo.GetValue(drawable, null);
+
+				Texture2D texture = textureArray[textureID];
+
+				// get position
+				propertyInfo = type.GetProperty("Position");
+				Vector2 position = (Vector2)propertyInfo.GetValue(drawable, null);
+
+				propertyInfo = type.GetProperty("SpriteRectangle");
+				Rectangle rectangle = (Rectangle)propertyInfo.GetValue(drawable, null);
+
+				propertyInfo = type.GetProperty("SpriteRepeat");
+				Vector2 spriteRepeat = (Vector2)propertyInfo.GetValue(drawable, null);
+				if (spriteRepeat.X == 0) spriteRepeat.X = 1;
+				if (spriteRepeat.Y == 0) spriteRepeat.Y = 1;
+
+				propertyInfo = type.GetProperty("Rotation");
+				float rotation = (float)propertyInfo.GetValue(drawable, null);
+
+				propertyInfo = type.GetProperty("Scale");
+				Vector2 scale = (Vector2)propertyInfo.GetValue(drawable, null);
+
+				propertyInfo = type.GetProperty("Layer");
+				float layer = (float)propertyInfo.GetValue(drawable, null);
+
+				m_SpriteBatch.Draw(texture, position, rectangle, Color.White, rotation, Vector2.Zero, scale, 0, 0.0f);
+			}
 		}
 
         //JURRE
