@@ -17,7 +17,7 @@ namespace HA1_Assembly
             rectangles = a_Rectangles;
             //ITems per node == 4
             //Max depth == 10
-            if ( a_Rectangles.Count > 3 && a_Depth < 10)
+            if ( a_Rectangles.Count > 3 && a_Depth < 5)
             {
                 hasChilds = true;
                 Rectangle topLeft, topRight, bottomLeft, bottomRight;

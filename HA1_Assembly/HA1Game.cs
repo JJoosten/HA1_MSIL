@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Storage;
 using Microsoft.Xna.Framework.GamerServices;
 using System.Reflection;
+using System.Diagnostics;
 #endregion
 
 namespace HA1_Assembly
@@ -271,7 +272,7 @@ namespace HA1_Assembly
             // create collision delegate
             var staticCollisionCheck = genGameType.GetMethod("StaticCollisionCheck");
             m_GenStaticCollisionCheck = (Func<Rectangle, int>)Delegate.CreateDelegate(typeof(Func<Rectangle, int>), m_GenGame, staticCollisionCheck);
-            
+
             // create initialize delegate and call initialize
             var initialize = genGameType.GetMethod("Initialize");
 
@@ -329,14 +330,9 @@ namespace HA1_Assembly
             m_PlayerCollisionRectangle.Width = (int)width;
             m_PlayerCollisionRectangle.Height = (int)height;
 
-
-            int collisionHash = quadTree.CheckForCollision(m_PlayerCollisionRectangle); //(int)m_GenStaticCollisionCheck(playerRect);
-            if (collisionHash != 0)
-            {
-                //Collided so game over
-                //Console.WriteLine( String.Format("Hitted a object with hash {0}", collisionHash ) );
-            }
-
+            //collisionHash = quadTree.CheckForCollision(m_PlayerCollisionRectangle);
+            int collisionHash = m_GenStaticCollisionCheck(m_PlayerCollisionRectangle);
+        
             int RockHash = ("Rock").GetHashCode();
             int SandHash = ("Sand").GetHashCode();
 

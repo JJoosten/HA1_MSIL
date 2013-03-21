@@ -10,5 +10,5 @@
 	<Sand Name="SandTop" Sprite="Sprites/Sand.png" AABBMin="0,0" AABBMax="64,64" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="82,20" Position="-1280,-1280" Scale="1,1" Rotation="0,0" />
 	<Sand Name="SandBottom" Sprite="Sprites/Sand.png" AABBMin="0,0" AABBMax="64,64" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="82,20" Position="-1280,2560" Scale="1,1" Rotation="0,0" />
 
-	<Airplane Name="Airplane" Sprite="Sprites/TileSet.png" AABBMin="0,0" AABBMax="40,40" SpriteRectangleMin="4,4" SpriteRectangleMax="32,32" SpriteRepeat="30,4" RepeatRandomRangeX="64,1280" RepeatRandomRangeY="32,640" Position="128,-640" RandomVelocityY="20,120" Scale="1,1" Rotation="0" Layer="1.0"  />
+	<Airplane Name="Airplane" Sprite="Sprites/TileSet.png" AABBMin="0,0" AABBMax="40,40" SpriteRectangleMin="6,6" SpriteRectangleMax="28,28" SpriteRepeat="30,4" RepeatRandomRangeX="64,1280" RepeatRandomRangeY="32,640" Position="128,-640" RandomVelocityY="20,120" Scale="1,1" Rotation="0" Layer="1.0"  />
 </Scene>
