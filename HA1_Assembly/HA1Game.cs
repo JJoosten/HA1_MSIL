@@ -39,6 +39,7 @@ namespace HA1_Assembly
 		private List<Object> m_DynamicObjects;
 		private Random m_Random;
 
+        private Rectangle m_PlayerCollisionRectangle;
         private Boolean m_DrawDebugRectangles = false;
         private List<VertexPositionColor[]> m_PrimitiveLines;
         private KeyboardState m_PrevKeyboardState;
@@ -70,6 +71,7 @@ namespace HA1_Assembly
 			m_Player.SpriteRectangle = new Rectangle(467, 302, 38, 192);
             m_Player.AABB = new Rectangle(0, 0, 38, 192);
 			m_Player.InitBullets();
+            m_PlayerCollisionRectangle = new Rectangle(0,0,0,0);
 
             // setup dynamic game and create genGame.dll
 			BehaviorTypesXmlReader behaviorTypesXml = new BehaviorTypesXmlReader();
@@ -138,21 +140,7 @@ namespace HA1_Assembly
                 propertyInfo = type.GetProperty("SpriteRectangle");
                 Rectangle rectangle = (Rectangle)propertyInfo.GetValue(collidable, null);
 
-                Vector3 pos = new Vector3(position, 0);
-                VertexPositionColor[] primitivePositionColor = new VertexPositionColor[8];
-                primitivePositionColor[0].Position = pos; 
-                primitivePositionColor[1].Position = pos + new Vector3((float)rectangle.Width, 0, 0); 
-                primitivePositionColor[2].Position = pos; 
-                primitivePositionColor[3].Position = pos + new Vector3(0, (float)rectangle.Height, 0); 
-                primitivePositionColor[4].Position = pos + new Vector3((float)rectangle.Width, 0, 0); 
-                primitivePositionColor[5].Position = pos + new Vector3((float)rectangle.Width, (float)rectangle.Height, 0); 
-                primitivePositionColor[6].Position = pos + new Vector3(0, (float)rectangle.Height, 0); 
-                primitivePositionColor[7].Position = pos + new Vector3((float)rectangle.Width, (float)rectangle.Height, 0); 
-
-                for (int i = 0; i < 8; ++i)
-                    primitivePositionColor[i].Color = Color.Black;
-
-                m_PrimitiveLines.Add(primitivePositionColor);
+                m_PrimitiveLines.Add(CreateDrawableQuad(position, rectangle));
             }
         }
 		
@@ -330,20 +318,19 @@ namespace HA1_Assembly
             float height = maxY - minY;
 
             // new aabb
-            Rectangle playerRect = new Rectangle();
-            playerRect.X = (int)minX;
-            playerRect.Y = (int)minY;
-            playerRect.Width = (int)width;
-            playerRect.Height = (int)height;
+            m_PlayerCollisionRectangle.X = (int)minX;
+            m_PlayerCollisionRectangle.Y = (int)minY;
+            m_PlayerCollisionRectangle.Width = (int)width;
+            m_PlayerCollisionRectangle.Height = (int)height;
 
             // set aabb to player position
-            playerRect.X = (int)m_Player.Position.X + 640 - ((int)playerRect.Width / 2);
-            playerRect.Y = (int)m_Player.Position.Y + 360 - ((int)playerRect.Height / 2);
-            playerRect.Width = (int)width;
-            playerRect.Height = (int)height;
+            m_PlayerCollisionRectangle.X = (int)m_Player.Position.X + 640 - ((int)m_PlayerCollisionRectangle.Width / 2);
+            m_PlayerCollisionRectangle.Y = (int)m_Player.Position.Y + 360 - ((int)m_PlayerCollisionRectangle.Height / 2);
+            m_PlayerCollisionRectangle.Width = (int)width;
+            m_PlayerCollisionRectangle.Height = (int)height;
 
 
-            int collisionHash = quadTree.CheckForCollision(playerRect); //(int)m_GenStaticCollisionCheck(playerRect);
+            int collisionHash = quadTree.CheckForCollision(m_PlayerCollisionRectangle); //(int)m_GenStaticCollisionCheck(playerRect);
             if (collisionHash != 0)
             {
                 //Collided so game over
@@ -467,6 +454,9 @@ namespace HA1_Assembly
             m_SpriteBatch.Begin();
             {
                 m_Player.Draw(a_GameTime, m_SpriteBatch);
+
+                GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, CreateDrawableQuad(new Vector2(m_Player.Position.X + 640 - m_PlayerCollisionRectangle.Width * 0.5f, m_Player.Position.Y + 360 - m_PlayerCollisionRectangle.Height * 0.5f), m_PlayerCollisionRectangle), 0, 4);
+				
             }
             m_SpriteBatch.End();
 
@@ -495,7 +485,7 @@ namespace HA1_Assembly
 
 			m_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, mat);
             {
-				DrawDynamicObjects(a_GameTime);
+                DrawDynamicObjects(a_GameTime);
 				m_Player.DrawBullets(a_GameTime, m_SpriteBatch);
             }
             m_SpriteBatch.End();
@@ -553,6 +543,25 @@ namespace HA1_Assembly
             rect.X += (int)position.X;
             rect.Y += (int)position.Y;
             return rect;
+        }
+
+        public VertexPositionColor[] CreateDrawableQuad( Vector2 position, Rectangle rectangle)
+        {
+            Vector3 pos = new Vector3(position, 0);
+            VertexPositionColor[] primitivePositionColor = new VertexPositionColor[8];
+            primitivePositionColor[0].Position = pos;
+            primitivePositionColor[1].Position = pos + new Vector3((float)rectangle.Width, 0, 0);
+            primitivePositionColor[2].Position = pos;
+            primitivePositionColor[3].Position = pos + new Vector3(0, (float)rectangle.Height, 0);
+            primitivePositionColor[4].Position = pos + new Vector3((float)rectangle.Width, 0, 0);
+            primitivePositionColor[5].Position = pos + new Vector3((float)rectangle.Width, (float)rectangle.Height, 0);
+            primitivePositionColor[6].Position = pos + new Vector3(0, (float)rectangle.Height, 0);
+            primitivePositionColor[7].Position = pos + new Vector3((float)rectangle.Width, (float)rectangle.Height, 0);
+
+            for (int i = 0; i < 8; ++i)
+                primitivePositionColor[i].Color = Color.Black;
+
+            return primitivePositionColor;
         }
 
         public int GetHashFromObject(Object a_Object)
