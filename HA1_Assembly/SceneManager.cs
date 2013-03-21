@@ -15,6 +15,12 @@ namespace HA1_Assembly
             m_GenericObjectLists = new Dictionary<string, List<Object>>();
         }
 
+        public void Clear()
+        {
+            m_GenericObjectLists.Clear();
+            GC.Collect();
+        }
+
         public List<Object> GetObjectList( string a_BehaviourName )
         {
             List<Object> objectList;

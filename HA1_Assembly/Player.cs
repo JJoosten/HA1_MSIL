@@ -18,11 +18,12 @@ namespace HA1_Assembly
         public float Rotation { get; set; }
 
 		private Bullet[] m_Bullets;
-		private int m_MaxBullets;
-		private int m_NumActiveBulets;
+		private uint m_MaxBullets;
+		private uint m_NumActiveBulets;
 		private Rectangle m_BulletRect;
 
 		private KeyboardState m_PrevKeyboardState;
+		private float m_ShootDT;
 
 		public Player()
 		{
@@ -35,11 +36,12 @@ namespace HA1_Assembly
 			Acceleration = new Vector3(0.0f, 0.0f, 0);
             Rotation = 0;
 			m_PrevKeyboardState = Keyboard.GetState();
+			m_ShootDT = 200.0f;
 		}
 
 		public void InitBullets()
 		{
-			m_BulletRect = new Rectangle(37, 169, 32, 32);
+			m_BulletRect = new Rectangle(40, 172, 28,28);
 
 			m_MaxBullets = 10;
 			
@@ -48,6 +50,16 @@ namespace HA1_Assembly
 				m_Bullets[i] = new Bullet();
 
 			m_NumActiveBulets = 0;
+		}
+
+		public uint GetNumActiveBullets()
+		{
+			return m_NumActiveBulets;
+		}
+
+		public Bullet[] GetBullets()
+		{
+			return m_Bullets;
 		}
   
 		public void Update(GameTime a_GameTime)
@@ -67,8 +79,19 @@ namespace HA1_Assembly
                 addativeDirection += new Vector3(0, 1.0f, 0);
 
 			if (m_PrevKeyboardState.IsKeyUp(Keys.Space) && Keyboard.GetState().IsKeyDown(Keys.Space))
+			{
 				ShootBullet();
-
+			}
+			else if (Keyboard.GetState().IsKeyDown(Keys.Space))
+			{
+				m_ShootDT -= a_GameTime.ElapsedGameTime.Milliseconds;
+				if (m_ShootDT <= 0)
+				{
+					ShootBullet();
+					m_ShootDT = 200.0f;
+				}
+			}
+				
             if( addativeDirection.LengthSquared() != 0)
                 addativeDirection.Normalize();
             Velocity += addativeDirection * dtSpeed; 
@@ -90,6 +113,7 @@ namespace HA1_Assembly
             
             Velocity *= 0.95f;
 
+
 			m_PrevKeyboardState = Keyboard.GetState();
 		}
 
@@ -109,10 +133,7 @@ namespace HA1_Assembly
 				Vector3 pos = m_Bullets[i].Position - Position;
 				if (pos.X < 0 || pos.X > 1280 || pos.Y < 0 || pos.Y > 720)
 				{
-					Bullet tmpBullet = m_Bullets[i];
-					m_Bullets[i] = m_Bullets[m_NumActiveBulets - 1];
-					m_Bullets[m_NumActiveBulets - 1] = tmpBullet;
-					m_NumActiveBulets--;
+					DestroyBullet(i);
 				}
 			}
 		}
@@ -134,6 +155,14 @@ namespace HA1_Assembly
 				m_Bullets[m_NumActiveBulets].Position = Position + new Vector3(640, 360, 0);
 				m_NumActiveBulets++;
 			}
+		}
+
+		public void DestroyBullet(uint a_index)
+		{
+			Bullet tmpBullet = m_Bullets[a_index];
+			m_Bullets[a_index] = m_Bullets[m_NumActiveBulets - 1];
+			m_Bullets[m_NumActiveBulets - 1] = tmpBullet;
+			m_NumActiveBulets--;
 		}
 	}
 }

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?> 
 <Scene>
-	<Rock Name="Rock1" Sprite="Sprites/TileSet.png" AABBMin="0,0" AABBMax="40,40" SpriteRectangleMin="245,512" SpriteRectangleMax="40,40" SpriteRepeat="10,10" RepeatRandomRangeX="10,1000" RepeatRandomRangeY="0,0" Position="0,0" Scale="1,1" Rotation="0" Layer="0.1"/>
+	<Rock Name="Rock1" Sprite="Sprites/TileSet.png" AABBMin="0,0" AABBMax="30,30" SpriteRectangleMin="245,512" SpriteRectangleMax="40,40" SpriteRepeat="5,5" RepeatRandomRangeX="0,2000" RepeatRandomRangeY="0,2000" Position="80,00" Scale="1,1" Rotation="0" Layer="0.1"/>
 
 	<Water Name="Water1" Sprite="Sprites/Water.png" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="40,40" Position="64,0" Scale="1,1" Rotation="0,0" />
 	<Sand Name="BorderLeft" Sprite="Sprites/BorderLeft.png" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="1,40" Position="0,0" Scale="1,1" Rotation="0,0" />
@@ -10,5 +10,5 @@
 	<Sand Name="SandTop" Sprite="Sprites/Sand.png" AABBMin="0,0" AABBMax="64,64" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="82,20" Position="-1280,-1280" Scale="1,1" Rotation="0,0" />
 	<Sand Name="SandBottom" Sprite="Sprites/Sand.png" AABBMin="0,0" AABBMax="64,64" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="82,20" Position="-1280,2560" Scale="1,1" Rotation="0,0" />
 
-	<Airplane Name="Airplane" Sprite="Sprites/TileSet.png" AABBMin="0,0" AABBMax="40,40" SpriteRectangleMin="4,4" SpriteRectangleMax="32,32" SpriteRepeat="30,4" RepeatRandomRangeX="64,1280" RepeatRandomRangeY="32,640" Position="128,-640" Velocity="0,40" Scale="1,1" Rotation="0" Layer="1.0"  />
+	<Airplane Name="Airplane" Sprite="Sprites/TileSet.png" AABBMin="0,0" AABBMax="40,40" SpriteRectangleMin="4,4" SpriteRectangleMax="32,32" SpriteRepeat="30,4" RepeatRandomRangeX="64,1280" RepeatRandomRangeY="32,640" Position="128,-640" RandomVelocityY="20,120" Scale="1,1" Rotation="0" Layer="1.0"  />
 </Scene>
