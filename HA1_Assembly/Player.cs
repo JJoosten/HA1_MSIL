@@ -39,7 +39,7 @@ namespace HA1_Assembly
 
 		public void InitBullets()
 		{
-			m_BulletRect = new Rectangle(37, 169, 32, 32);
+			m_BulletRect = new Rectangle(40, 172, 28,28);
 
 			m_MaxBullets = 10;
 			

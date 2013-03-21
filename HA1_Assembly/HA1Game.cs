@@ -31,11 +31,18 @@ namespace HA1_Assembly
 
         private List<Object> m_Movables;
         private Func<Rectangle, int> m_GenStaticCollisionCheck;
-        private Action<List<Object>, List<Object>> m_GenInitialize;
+        //private Action<List<Object>, List<Object>> m_GenInitialize;
+
         private Action<SpriteBatch, Texture2D[]> m_GenGameDraw;
+        private List<Object> m_Collidables;
 
 		private List<Object> m_DynamicObjects;
 		private Random m_Random;
+
+        private Boolean m_DrawDebugRectangles = false;
+        private List<VertexPositionColor[]> m_PrimitiveLines;
+        private KeyboardState m_PrevKeyboardState;
+
 
 		public HA1Game()
 			: base()
@@ -96,17 +103,58 @@ namespace HA1_Assembly
 
 			// this class will generate the game assembly
 			GameAssemblyBuilder gameAssemblyBuilder = new GameAssemblyBuilder();
-			gameAssemblyBuilder.GenerateGameObjects(m_SceneXmlReader.Objects, gameTypesXml.GameTypes);
+			//gameAssemblyBuilder.GenerateGameObjects(m_SceneXmlReader.Objects, gameTypesXml.GameTypes);
             gameAssemblyBuilder.GenerateDrawFunction(staticDrawableList);
             gameAssemblyBuilder.GenerateStaticCollisionFunction(quadTree);
 			gameAssemblyBuilder.Save();
 
+            m_Collidables = staticCollidableList;
+
             // loads game dll (genGame.dll)
 			LoadGameDLL();
+
+            // clear all game objects, wont delete objects that are still referenced!
+            m_SceneXmlReader.Clear();
+            m_SceneManager.Clear();
+
+            CreateDebugQuad();
 
 			base.Initialize();
 		}
 
+        private void CreateDebugQuad()
+        {
+            m_PrimitiveLines = new List<VertexPositionColor[]>();
+
+            // generate primitive
+            foreach (Object collidable in m_Collidables)
+            {
+                Type type = collidable.GetType();
+
+                PropertyInfo propertyInfo = type.GetProperty("Position");
+                Vector2 position = (Vector2)propertyInfo.GetValue(collidable, null);
+
+                propertyInfo = type.GetProperty("SpriteRectangle");
+                Rectangle rectangle = (Rectangle)propertyInfo.GetValue(collidable, null);
+
+                Vector3 pos = new Vector3(position, 0);
+                VertexPositionColor[] primitivePositionColor = new VertexPositionColor[8];
+                primitivePositionColor[0].Position = pos; 
+                primitivePositionColor[1].Position = pos + new Vector3((float)rectangle.Width, 0, 0); 
+                primitivePositionColor[2].Position = pos; 
+                primitivePositionColor[3].Position = pos + new Vector3(0, (float)rectangle.Height, 0); 
+                primitivePositionColor[4].Position = pos + new Vector3((float)rectangle.Width, 0, 0); 
+                primitivePositionColor[5].Position = pos + new Vector3((float)rectangle.Width, (float)rectangle.Height, 0); 
+                primitivePositionColor[6].Position = pos + new Vector3(0, (float)rectangle.Height, 0); 
+                primitivePositionColor[7].Position = pos + new Vector3((float)rectangle.Width, (float)rectangle.Height, 0); 
+
+                for (int i = 0; i < 8; ++i)
+                    primitivePositionColor[i].Color = Color.Black;
+
+                m_PrimitiveLines.Add(primitivePositionColor);
+            }
+        }
+		
 		private void InitDynamicObjects(GameTypesXmlReader a_GameTypesXml)
 		{
 			foreach (Object item in m_SceneXmlReader.Objects)
@@ -237,8 +285,10 @@ namespace HA1_Assembly
             
             // create initialize delegate and call initialize
             var initialize = genGameType.GetMethod("Initialize");
-            m_GenInitialize = (Action<List<Object>, List<Object>>)Delegate.CreateDelegate(typeof(Action<List<Object>, List<Object>>), m_GenGame, initialize);
-            m_GenInitialize(m_SceneXmlReader.Objects, m_Movables);
+
+            // initialization of genGame.dll is not needed anymore because all its objects are static 
+            //m_GenInitialize = (Action<List<Object>, List<Object>>)Delegate.CreateDelegate(typeof(Action<List<Object>, List<Object>>), m_GenGame, initialize);
+            //m_GenInitialize(m_SceneXmlReader.Objects, m_Movables);
 
             // create draw delegate
             var draw = genGameType.GetMethod("Draw");
@@ -250,6 +300,11 @@ namespace HA1_Assembly
 		{
 			if ( GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape) )
 				Exit();
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Enter) && !m_PrevKeyboardState.IsKeyDown(Keys.Enter))
+            {
+                m_DrawDebugRectangles = !m_DrawDebugRectangles;
+            }
 
             Vector3 position = m_Player.Position;
 
@@ -283,6 +338,7 @@ namespace HA1_Assembly
                 m_Player.Position = position;
             }
 
+            m_PrevKeyboardState = Keyboard.GetState();
 			base.Update(a_GameTime);
 		}
 
@@ -372,31 +428,58 @@ namespace HA1_Assembly
 		}
 
 		protected override void Draw(GameTime a_GameTime)
-		{
-			GraphicsDevice.Clear(Color.CornflowerBlue);
+        {
+            GraphicsDevice.Clear(Color.CornflowerBlue);
 
             Matrix mat = Matrix.CreateTranslation(-m_Player.Position);
-			m_SpriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, null, mat);
+            m_SpriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.Default, RasterizerState.CullNone, null, mat);
+            {
+                // insert call to DLL render method
+                Texture2D[] textureArray = m_SceneXmlReader.Sprites.ToArray();
+                m_GenGameDraw(m_SpriteBatch, textureArray);
+            }
+            m_SpriteBatch.End();
 
-            // insert call to DLL render method
-            Texture2D[] textureArray = m_SceneXmlReader.Sprites.ToArray();
-            m_GenGameDraw(m_SpriteBatch, textureArray);
+            m_SpriteBatch.Begin();
+            {
+                m_Player.Draw(a_GameTime, m_SpriteBatch);
+            }
+            m_SpriteBatch.End();
 
-			m_SpriteBatch.End();
+            // draw debug
+            if (m_DrawDebugRectangles)
+            {
+                m_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.Opaque, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, mat);
+                {
+                    foreach (VertexPositionColor[] primitive in m_PrimitiveLines)
+                    {
+                        Vector3[] oldPositions = new Vector3[8];
+                        for (int i = 0; i < 8; ++i)
+                        {
+                            oldPositions[i] = primitive[i].Position;
+                            primitive[i].Position = Vector3.Transform(primitive[i].Position, mat);
+                        }
 
-			m_SpriteBatch.Begin();
-			m_Player.Draw(a_GameTime, m_SpriteBatch);
-			m_SpriteBatch.End();
+                        GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, primitive, 0, 4);
+
+                        for (int i = 0; i < 8; ++i)
+                            primitive[i].Position = oldPositions[i];
+                    }
+                }
+                m_SpriteBatch.End();
+            }
 
 			m_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, mat);
+            {
+				DrawDynamicObjects(a_GameTime);
+				m_Player.DrawBullets(a_GameTime, m_SpriteBatch);
+            }
+            m_SpriteBatch.End();
 
-			DrawDynamicObjects(a_GameTime);
 
-			m_Player.DrawBullets(a_GameTime, m_SpriteBatch);
-			m_SpriteBatch.End();
 
-			base.Draw(a_GameTime);
-		}
+            base.Draw(a_GameTime);
+        }
 
 		private void DrawDynamicObjects(GameTime a_GameTime)
 		{

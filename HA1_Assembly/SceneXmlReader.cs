@@ -27,6 +27,12 @@ namespace HA1_Assembly
             Sprites = new List<Texture2D>();
 		}
 
+        public void Clear()
+        {
+            Objects.Clear();
+            GC.Collect();
+        }
+
 		public void Parse(string a_Filename, List<GameType> a_GameTypes)
 		{
 			Assembly assembly = Assembly.LoadFrom(Directory.GetCurrentDirectory() + "/GameTypes.dll");
