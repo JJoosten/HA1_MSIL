@@ -13,6 +13,7 @@
     <Property name="RepeatRandomRangeY" type="Vector2" />
 	</Behavior>
 	<Behavior name="Movable" >
+		<Property name="InitialPosition" type="Vector2" />
 		<Property name="Position" type="Vector2" />
 		<Property name="Velocity" type="Vector2" />
 		<Property name="Acceleration" type="Vector2" />
