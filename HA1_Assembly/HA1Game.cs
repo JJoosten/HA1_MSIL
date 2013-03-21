@@ -25,6 +25,8 @@ namespace HA1_Assembly
 		private SceneManager m_SceneManager;
 		private Player m_Player;
 		private Object m_GenGame;
+
+		private Rectangle m_QuadTreeRect;
         private AssemblyQuadTree quadTree;
 
         private List<Object> m_Movables;
@@ -33,6 +35,7 @@ namespace HA1_Assembly
         private Action<SpriteBatch, Texture2D[]> m_GenGameDraw;
 
 		private List<Object> m_DynamicObjects;
+		private Random m_Random;
 
 		public HA1Game()
 			: base()
@@ -47,6 +50,8 @@ namespace HA1_Assembly
 			m_CodeGenerator = new CodeParser();
 
 			m_Player = new Player();
+
+			m_Random = new Random();
 
 			Content.RootDirectory = "Content";
 		}
@@ -72,8 +77,8 @@ namespace HA1_Assembly
 			m_SceneXmlReader = new SceneXmlReader(Content);
 			m_SceneXmlReader.Parse(Directory.GetCurrentDirectory() + @"\Content\Scene.xml", gameTypesXml.GameTypes);
 
-			InitDynamicObjects(gameTypesXml);
 			CloneDrawableObjects(gameTypesXml);
+			InitDynamicObjects(gameTypesXml);
 
 			m_SceneManager = new SceneManager();
 			m_SceneManager.ParseObjects(m_SceneXmlReader.Objects, gameTypesXml.GameTypes, behaviorTypesXml.GameBehaviorProperties);
@@ -86,7 +91,8 @@ namespace HA1_Assembly
             foreach (Object obj in staticCollidableList)
                 staticRectangles.Add(new Tuple<Rectangle, int>(GetRectangleFromObject(obj), GetHashFromObject(obj)));
 
-            quadTree = new AssemblyQuadTree(new Rectangle(-3000, -3000, 6000, 6000), staticRectangles);
+			m_QuadTreeRect = new Rectangle(-3000, -3000, 6000, 6000);
+			quadTree = new AssemblyQuadTree(m_QuadTreeRect, staticRectangles);
 
 			// this class will generate the game assembly
 			GameAssemblyBuilder gameAssemblyBuilder = new GameAssemblyBuilder();
@@ -118,13 +124,32 @@ namespace HA1_Assembly
 
 					propertyInfo = type.GetProperty("InitialPosition");
 					propertyInfo.SetValue(item, position, null);
+
+					PropertyInfo propertyInfoVel = type.GetProperty("Velocity");
+					Vector2 velocity = (Vector2)propertyInfoVel.GetValue(item, null);
+
+					propertyInfo = type.GetProperty("RandomVelocityX");
+					Vector2 randomVelocityX = (Vector2)propertyInfo.GetValue(item, null);
+
+					propertyInfo = type.GetProperty("RandomVelocityY");
+					Vector2 randomVelocityY = (Vector2)propertyInfo.GetValue(item, null);
+
+					if (randomVelocityX != Vector2.Zero)
+					{
+						velocity.X = (float)m_Random.Next((int)randomVelocityX.X, (int)randomVelocityX.Y);
+					}
+					if (randomVelocityY != Vector2.Zero)
+					{
+						velocity.Y = (float)m_Random.Next((int)randomVelocityY.X, (int)randomVelocityY.Y);
+					}
+
+					propertyInfoVel.SetValue(item, velocity, null);
 				}
 			}
 		}
 
 		private void CloneDrawableObjects(GameTypesXmlReader a_GameTypesXml)
 		{
-			Random random = new Random();
 			Vector2 offset = new Vector2();
 			List<Object> clonedObjects = new List<object>();
 			foreach (Object item in m_SceneXmlReader.Objects)
@@ -162,12 +187,9 @@ namespace HA1_Assembly
 							if (x == 0 && y == 0)
 								continue; //Do not clone the first one because it already exists
 
-                            const int divisionValue = 1 << 10;
-                            float randomNumberX = (float)random.Next(0, divisionValue) / (float)(divisionValue);
-                            float randomNumberY = (float)random.Next(0, divisionValue) / (float)(divisionValue);
-
-                            offset.X = rectangle.Width * x + repeatRandomRangeX.X + randomNumberX * repeatRandomWidthX;
-                            offset.Y = rectangle.Height * y + repeatRandomRangeY.X + randomNumberY * repeatRandomWidthY;
+							Vector2 randomOffset = GetRandomOffset(repeatRandomRangeX, repeatRandomRangeY, repeatRandomWidthX, repeatRandomWidthY);
+							offset.X = rectangle.Width * x + randomOffset.X;
+							offset.Y = rectangle.Height * y + randomOffset.Y;
 
 							ConstructorInfo ci = type.GetConstructor(Type.EmptyTypes);
 							Object newObject = ci.Invoke(null);
@@ -291,11 +313,11 @@ namespace HA1_Assembly
                     
                 propertyInfo = type.GetProperty("RepeatRandomRangeX");
                 Vector2 repeatRandomRangeX = (Vector2)propertyInfo.GetValue(item, null);
-                float repeatRandomWidthX = repeatRandomRangeX.Y - repeatRandomRangeX.X;
+				float repeatRandomWidthX = repeatRandomRangeX.Y - repeatRandomRangeX.X;
 
                 propertyInfo = type.GetProperty("RepeatRandomRangeY");
                 Vector2 repeatRandomRangeY = (Vector2)propertyInfo.GetValue(item, null);
-                float repeatRandomWidthY = repeatRandomRangeY.Y - repeatRandomRangeY.X;
+				float repeatRandomWidthY = repeatRandomRangeY.Y - repeatRandomRangeY.X;
 
 				velocity += acceleration * a_GameTime.ElapsedGameTime.Milliseconds * 0.001f;
 				position += velocity * a_GameTime.ElapsedGameTime.Milliseconds * 0.001f;
@@ -315,19 +337,38 @@ namespace HA1_Assembly
 						Rectangle bulletRect = new Rectangle((int)bullet.Position.X, (int)bullet.Position.Y, 32, 32);
 						if ( bulletRect.Intersects(rectangle) )
 						{
-							const int divisionValue = 1 << 10;
-                            float randomNumberX = (float)random.Next(0, divisionValue) / (float)(divisionValue);
-                            float randomNumberY = (float)random.Next(0, divisionValue) / (float)(divisionValue);
-
-                            offset.X = rectangle.Width + repeatRandomRangeX.X + randomNumberX * repeatRandomWidthX;
-                            offset.Y = rectangle.Height + repeatRandomRangeY.X + randomNumberY * repeatRandomWidthY;
+							Vector2 randomOffset = GetRandomOffset(repeatRandomRangeX, repeatRandomRangeY, repeatRandomWidthX, repeatRandomWidthY);
+                            offset.X = rectangle.Width + randomOffset.X;
+                            offset.Y = rectangle.Height + randomOffset.Y;
 
 							propertyInfoPos.SetValue(item, initialPosition + offset, null);
 							m_Player.DestroyBullet(i);
 						}
 					}
+
+					if (!rectangle.Intersects(m_QuadTreeRect))
+					{
+						Vector2 randomOffset = GetRandomOffset(repeatRandomRangeX, repeatRandomRangeY, repeatRandomWidthX, repeatRandomWidthY);
+						offset.X = rectangle.Width + randomOffset.X;
+						offset.Y = rectangle.Height + randomOffset.Y;
+
+						propertyInfoPos.SetValue(item, initialPosition + offset, null);
+					}
 				}
 			}
+		}
+
+		private Vector2 GetRandomOffset(Vector2 a_RepeatRandomRangeX, Vector2 a_RepeatRandomRangeY, float a_RepeatRandomWidthX, float a_RepeatRandomWidthY)
+		{
+			Vector2 offset = new Vector2();
+			const int divisionValue = 1 << 10;
+			float randomNumberX = (float)m_Random.Next(0, divisionValue) / (float)(divisionValue);
+			float randomNumberY = (float)m_Random.Next(0, divisionValue) / (float)(divisionValue);
+
+			offset.X = a_RepeatRandomRangeX.X + randomNumberX * a_RepeatRandomWidthX;
+			offset.Y = a_RepeatRandomRangeY.X + randomNumberY * a_RepeatRandomWidthY;
+
+			return offset;
 		}
 
 		protected override void Draw(GameTime a_GameTime)
