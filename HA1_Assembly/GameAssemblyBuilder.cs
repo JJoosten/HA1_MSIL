@@ -144,7 +144,7 @@ namespace HA1_Assembly
 
         public void GenerateStaticCollisionFunction(AssemblyQuadTree a_Tree)
         {
-            ILGenerator ilGenerator = m_AssemblyBuilder.CreateFunction(m_TypeBuilder, "StaticCollisionCheck", MethodAttributes.Public, typeof(Boolean), new Type[] { typeof(Rectangle) });
+            ILGenerator ilGenerator = m_AssemblyBuilder.CreateFunction(m_TypeBuilder, "StaticCollisionCheck", MethodAttributes.Public, typeof(int), new Type[] { typeof(Rectangle) });
             //Generate the massive if statements
 
             Label trueLabel = ilGenerator.DefineLabel();
@@ -176,7 +176,6 @@ namespace HA1_Assembly
             ilGenerator.Emit(OpCodes.Ret);
 
             ilGenerator.MarkLabel(trueLabel);
-            ilGenerator.Emit(OpCodes.Ldc_I4, 1);
             ilGenerator.Emit(OpCodes.Ret);            
         }
 

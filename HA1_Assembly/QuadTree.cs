@@ -10,7 +10,7 @@ namespace HA1_Assembly
 {
     public class QuadTreeNode
     {
-        public QuadTreeNode(Rectangle a_BoundingRectangle, List<Rectangle> a_Rectangles, int a_Depth)
+        public QuadTreeNode(Rectangle a_BoundingRectangle, List<Tuple<Rectangle, int>> a_Rectangles, int a_Depth)
         {
             hasChilds = false;
             boundingRectangle = a_BoundingRectangle;
@@ -28,21 +28,21 @@ namespace HA1_Assembly
                 bottomLeft = new Rectangle(a_BoundingRectangle.X, a_BoundingRectangle.Y + halfHeight, halfWidth, halfHeight );
                 bottomRight = new Rectangle( a_BoundingRectangle.X + halfWidth, a_BoundingRectangle.Y + halfHeight, halfWidth, halfHeight );
 
-                List<Rectangle> tlRectangles = new List<Rectangle>();
-                List<Rectangle> trRectangles = new List<Rectangle>();
-                List<Rectangle> blRectangles = new List<Rectangle>();
-                List<Rectangle> brRectangles = new List<Rectangle>();
-                
-                foreach ( Rectangle rectangle in a_Rectangles )
+                List<Tuple<Rectangle, int>> tlRectangles = new List<Tuple<Rectangle, int>>();
+                List<Tuple<Rectangle, int>> trRectangles = new List<Tuple<Rectangle, int>>();
+                List<Tuple<Rectangle, int>> blRectangles = new List<Tuple<Rectangle, int>>();
+                List<Tuple<Rectangle, int>> brRectangles = new List<Tuple<Rectangle, int>>();
+
+                foreach (Tuple<Rectangle, int> pair in a_Rectangles)
                 {
-                    if (rectangle.Intersects(topLeft) == true)
-                        tlRectangles.Add(rectangle);
-                    if (rectangle.Intersects(topRight) == true)
-                        trRectangles.Add(rectangle);
-                    if (rectangle.Intersects(bottomLeft) == true)
-                        blRectangles.Add(rectangle);
-                    if (rectangle.Intersects(bottomRight) == true)
-                        brRectangles.Add(rectangle);
+                    if (pair.Item1.Intersects(topLeft) == true)
+                        tlRectangles.Add(pair);
+                    if (pair.Item1.Intersects(topRight) == true)
+                        trRectangles.Add(pair);
+                    if (pair.Item1.Intersects(bottomLeft) == true)
+                        blRectangles.Add(pair);
+                    if (pair.Item1.Intersects(bottomRight) == true)
+                        brRectangles.Add(pair);
                 }
                 
                 childNodes = new QuadTreeNode[4];
@@ -115,10 +115,11 @@ namespace HA1_Assembly
             }
             else
             {
-                MethodInfo checkMethod = typeof(Rectangle).GetMethod("Intersects", new Type[] { typeof(Rectangle) }, null);
-                foreach (Rectangle rect in rectangles)
+                MethodInfo checkMethod = typeof(Rectangle).GetMethod("Intersects", new Type[] { typeof(Rectangle) }, null);                 
+                foreach (Tuple<Rectangle, int> pair in rectangles)
                 {
                     Label endRectangleLabel = a_ILGenerator.DefineLabel();
+                    //Push hash onto the stack
                     //New method ( extracted rectangle check )
                     //Load PlayerX onto stack
                     a_ILGenerator.Emit(OpCodes.Ldloc_1);
@@ -127,15 +128,15 @@ namespace HA1_Assembly
                     //Add PlayerX to PlayerWidth, which ends up on the stack
                     a_ILGenerator.Emit(OpCodes.Add);
                     //Load hard coded rectangle X onto stack
-                    a_ILGenerator.Emit(OpCodes.Ldc_I4, rect.X);
+                    a_ILGenerator.Emit(OpCodes.Ldc_I4, pair.Item1.X);
                     //Check if PlayerX + PlayerW >= Rectangle X
                     a_ILGenerator.Emit(OpCodes.Blt, endRectangleLabel);
                     //Load PlayerX onto stack
                     a_ILGenerator.Emit(OpCodes.Ldloc_1);
                     //Load ObjectX onto stack
-                    a_ILGenerator.Emit(OpCodes.Ldc_I4, rect.X);
+                    a_ILGenerator.Emit(OpCodes.Ldc_I4, pair.Item1.X);
                     //Load Object width onto stack
-                    a_ILGenerator.Emit(OpCodes.Ldc_I4, rect.Width);
+                    a_ILGenerator.Emit(OpCodes.Ldc_I4, pair.Item1.Width);
                     //Add the objectX to object Width, which ends up on the stack
                     a_ILGenerator.Emit(OpCodes.Add);
                     //Check if PlayerX <= ObjectX + ObjectWidth
@@ -148,20 +149,22 @@ namespace HA1_Assembly
                     //Add PlayerX to PlayerHeight, which ends up on the stack
                     a_ILGenerator.Emit(OpCodes.Add);
                     //Load hard coded rectangle Y onto stack
-                    a_ILGenerator.Emit(OpCodes.Ldc_I4, rect.Y);
+                    a_ILGenerator.Emit(OpCodes.Ldc_I4, pair.Item1.Y);
                     //Check if PlayerX + PlayerW >= Rectangle Y
                     a_ILGenerator.Emit(OpCodes.Blt, endRectangleLabel);
                     //Load PlayerX onto stack
                     a_ILGenerator.Emit(OpCodes.Ldloc_2);
                     //Load ObjectX onto stack
-                    a_ILGenerator.Emit(OpCodes.Ldc_I4, rect.Y);
+                    a_ILGenerator.Emit(OpCodes.Ldc_I4, pair.Item1.Y);
                     //Load Object Height onto stack
-                    a_ILGenerator.Emit(OpCodes.Ldc_I4, rect.Height);
+                    a_ILGenerator.Emit(OpCodes.Ldc_I4, pair.Item1.Height);
                     //Add the objectX to object Height, which ends up on the stack
                     a_ILGenerator.Emit(OpCodes.Add);
                     //Check if PlayerX <= ObjectX + ObjectWidth
-                    a_ILGenerator.Emit(OpCodes.Blt, a_TrueLabel);
-                    a_ILGenerator.MarkLabel(endRectangleLabel);
+                    a_ILGenerator.Emit(OpCodes.Bge, endRectangleLabel);
+                    a_ILGenerator.Emit(OpCodes.Ldc_I4, pair.Item2);
+                    a_ILGenerator.Emit(OpCodes.Br, a_TrueLabel);
+                    a_ILGenerator.MarkLabel(endRectangleLabel);                  
 
                     //Old method
                     //a_ILGenerator.Emit(OpCodes.Ldc_I4, rect.X); //Load arguments for object rectangle onto stack
@@ -188,7 +191,7 @@ namespace HA1_Assembly
         }
         //Members
         public Rectangle boundingRectangle;
-        List<Rectangle> rectangles;
+        List<Tuple<Rectangle, int>> rectangles;
         QuadTreeNode[] childNodes;
         bool hasChilds;
         int depth;
@@ -196,7 +199,7 @@ namespace HA1_Assembly
 
     public class AssemblyQuadTree
     {
-        public AssemblyQuadTree(Rectangle a_ScreenRectangle, List<Rectangle> a_Rectangles)
+        public AssemblyQuadTree(Rectangle a_ScreenRectangle, List<Tuple<Rectangle, int>> a_Rectangles)
         {
             rootNode = new QuadTreeNode(a_ScreenRectangle, a_Rectangles, 0 );
         }
