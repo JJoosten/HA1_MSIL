@@ -186,26 +186,29 @@ namespace HA1_Assembly
 			string strPropertyMin = xmlReader.GetAttribute(string.Format("{0}Min", propertyName));
 			string strPropertyMax = xmlReader.GetAttribute(string.Format("{0}Max", propertyName));
 
-			string[] splitMin = strPropertyMin.Split(',');
-			string[] splitMax = strPropertyMax.Split(',');
-
-			if (splitMin.Length == 2 && splitMax.Length == 2)
+			if (strPropertyMin != null && strPropertyMax != null)
 			{
-				if (!int.TryParse(splitMin[0].Trim().Replace('.', ','), out rectangle.X))
+				string[] splitMin = strPropertyMin.Split(',');
+				string[] splitMax = strPropertyMax.Split(',');
+
+				if (splitMin.Length == 2 && splitMax.Length == 2)
 				{
-					Console.WriteLine(string.Format("Failed to parse {0}Min.X", propertyName));
-				}
-				if (!int.TryParse(splitMin[1].Trim().Replace('.', ','), out rectangle.Y))
-				{
-					Console.WriteLine(string.Format("Failed to parse {0}Min.Y", propertyName));
-				}
-				if (!int.TryParse(splitMax[0].Trim().Replace('.', ','), out rectangle.Width))
-				{
-					Console.WriteLine(string.Format("Failed to parse {0}Max.X", propertyName));
-				}
-				if (!int.TryParse(splitMax[1].Trim().Replace('.', ','), out rectangle.Height))
-				{
-					Console.WriteLine(string.Format("Failed to parse {0}Max.Y", propertyName));
+					if (!int.TryParse(splitMin[0].Trim().Replace('.', ','), out rectangle.X))
+					{
+						Console.WriteLine(string.Format("Failed to parse {0}Min.X", propertyName));
+					}
+					if (!int.TryParse(splitMin[1].Trim().Replace('.', ','), out rectangle.Y))
+					{
+						Console.WriteLine(string.Format("Failed to parse {0}Min.Y", propertyName));
+					}
+					if (!int.TryParse(splitMax[0].Trim().Replace('.', ','), out rectangle.Width))
+					{
+						Console.WriteLine(string.Format("Failed to parse {0}Max.X", propertyName));
+					}
+					if (!int.TryParse(splitMax[1].Trim().Replace('.', ','), out rectangle.Height))
+					{
+						Console.WriteLine(string.Format("Failed to parse {0}Max.Y", propertyName));
+					}
 				}
 			}
 			return rectangle;

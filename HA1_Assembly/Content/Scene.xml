@@ -1,8 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?> 
 <Scene>
-  <Tree Name="Rock1" Sprite="Sprites/TileSet.png" AABBMin="0,0" AABBMax="20,20" SpriteRectangleMin="245,512" SpriteRectangleMax="40,40" SpriteRepeat="10,10" Position="0,0" Scale="1,1" Rotation="0" Layer="0.1"/>
-  
-  <Tree Name="Rock1" Sprite="Sprites/TileSet.png" AABBMin="0,0" AABBMax="40,40" SpriteRectangleMin="245,512" SpriteRectangleMax="40,40" Position="830,530" Scale="1,1" Rotation="0" Layer="0.1"/>
+  <Rock Name="Rock1" Sprite="Sprites/TileSet.png" AABBMin="0,0" AABBMax="40,40" SpriteRectangleMin="245,512" SpriteRectangleMax="40,40" SpriteRepeat="10,10" RepeatRandomRangeX="10,1000" RepeatRandomRangeY="0,0" Position="0,0" Scale="1,1" Rotation="0" Layer="0.1"/>
+
   <Water Name="Water1" Sprite="Sprites/Water.png" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="40,40" Position="64,0" Scale="1,1" Rotation="0,0" />
 	<Sand Name="BorderLeft" Sprite="Sprites/BorderLeft.png" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="1,40" Position="0,0" Scale="1,1" Rotation="0,0" />
 	<Sand Name="BorderRight" Sprite="Sprites/BorderRight.png" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="1,40" Position="2624,0" Scale="1,1" Rotation="0,0" />

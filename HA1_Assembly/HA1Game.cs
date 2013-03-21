@@ -69,6 +69,8 @@ namespace HA1_Assembly
 			m_SceneXmlReader = new SceneXmlReader(Content);
 			m_SceneXmlReader.Parse(Directory.GetCurrentDirectory() + @"\Content\Scene.xml", gameTypesXml.GameTypes);
 
+			CloneDrawableObjects(gameTypesXml);
+
 			m_SceneManager = new SceneManager();
 			m_SceneManager.ParseObjects(m_SceneXmlReader.Objects, gameTypesXml.GameTypes, behaviorTypesXml.GameBehaviorProperties);
 
@@ -92,6 +94,74 @@ namespace HA1_Assembly
 			LoadGameDLL();
 
 			base.Initialize();
+		}
+
+		private void CloneDrawableObjects(GameTypesXmlReader a_GameTypesXml)
+		{
+			List<Object> clonedObjects = new List<object>();
+			foreach (Object item in m_SceneXmlReader.Objects)
+			{
+				Type type = item.GetType();
+				GameType gameType = a_GameTypesXml.GameTypes.Find(t => t.Name == type.Name);
+
+				bool hasBehavior = false;
+				bool hasValue = gameType.Behaviors.TryGetValue("Drawable", out hasBehavior);
+
+				if (gameType != null && hasBehavior)
+				{
+					// get position
+					PropertyInfo propertyInfo = type.GetProperty("Position");
+					Vector2 position = (Vector2)propertyInfo.GetValue(item, null);
+
+					propertyInfo = type.GetProperty("SpriteRectangle");
+					Rectangle rectangle = (Rectangle)propertyInfo.GetValue(item, null);
+
+					propertyInfo = type.GetProperty("SpriteRepeat");
+					Vector2 spriteRepeat = (Vector2)propertyInfo.GetValue(item, null);
+                    
+                    propertyInfo = type.GetProperty("RepeatRandomRangeX");
+                    Vector2 repeatRandomRangeX = (Vector2)propertyInfo.GetValue(item, null);
+                    float repeatRandomWidthX = repeatRandomRangeX.Y - repeatRandomRangeX.X;
+
+                    propertyInfo = type.GetProperty("RepeatRandomRangeY");
+                    Vector2 repeatRandomRangeY = (Vector2)propertyInfo.GetValue(item, null);
+                    float repeatRandomWidthY = repeatRandomRangeY.Y - repeatRandomRangeY.X;
+
+                    Random random = new Random();
+					Vector2 offset = new Vector2();
+					for (int y = 0; y < spriteRepeat.Y; y++)
+					{
+						for (int x = 0; x < spriteRepeat.X; x++)
+						{
+							if (x == 0 && y == 0)
+								continue; //Do not clone the first one because it already exists
+
+                            const int divisionValue = 1 << 10;
+                            float randomNumberX = (float)random.Next(0, divisionValue) / (float)(divisionValue);
+                            float randomNumberY = (float)random.Next(0, divisionValue) / (float)(divisionValue);
+
+                            offset.X = rectangle.Width * x + repeatRandomRangeX.X + randomNumberX * repeatRandomWidthX;
+                            offset.Y = rectangle.Height * y + repeatRandomRangeY.X + randomNumberY * repeatRandomWidthY;
+
+							ConstructorInfo ci = type.GetConstructor(Type.EmptyTypes);
+							Object newObject = ci.Invoke(null);
+
+							foreach (PropertyField property in gameType.Properties.Values)
+							{
+								propertyInfo = type.GetProperty(property.PropertyName);
+								propertyInfo.SetValue(newObject, propertyInfo.GetValue(item, null), null);
+							}
+
+							propertyInfo = type.GetProperty("Position");
+							propertyInfo.SetValue(newObject, position + offset, null);
+
+							clonedObjects.Add(newObject);
+						}
+					}
+				}
+			}
+
+			m_SceneXmlReader.Objects.AddRange(clonedObjects);
 		}
 
 		protected override void LoadContent()
@@ -140,7 +210,7 @@ namespace HA1_Assembly
             Rectangle playerRect = new Rectangle((int)m_Player.Position.X + 640 - ( (int)m_Player.SpriteRectangle.Width / 2 ), (int)m_Player.Position.Y + 360 - ( (int)m_Player.SpriteRectangle.Height / 2 ), (int)m_Player.SpriteRectangle.Width, (int)m_Player.SpriteRectangle.Height);
             Matrix rotMat = Matrix.CreateRotationZ(m_Player.Rotation);
 
-            Console.WriteLine(string.Format("X: {0} Y: {1} OffsetX {2} OffsetY {3}", m_Player.Position.X, m_Player.Position.Y, (int)m_Player.Position.X + 640, (int)m_Player.Position.Y + 360));
+           // Console.WriteLine(string.Format("X: {0} Y: {1} OffsetX {2} OffsetY {3}", m_Player.Position.X, m_Player.Position.Y, (int)m_Player.Position.X + 640, (int)m_Player.Position.Y + 360));
 
             int collisionHash = (int)m_GenStaticCollisionCheck(playerRect);
             if (collisionHash != 0)

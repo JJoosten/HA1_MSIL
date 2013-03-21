@@ -118,22 +118,12 @@ namespace HA1_Assembly
 
                     propertyInfo = type.GetProperty("Layer");
                     float layer = (float)propertyInfo.GetValue(drawable, null);
+                
+					ilGenerator.Emit(OpCodes.Ldarg_1); // loads the local argument spritebatch on the evaluation stack
+					ilGenerator.Emit(OpCodes.Ldarg_2); // loads the local argument texture array on the evaluation stack
 
-					Vector2 offset = new Vector2();
-					for (int y = 0; y < spriteRepeat.Y; y++)
-					{
-						for (int x = 0; x < spriteRepeat.X; x++)
-						{
-							offset.X = rectangle.Width * x;
-							offset.Y = rectangle.Height * y;
+					Behaviors.DrawStaticSprite(ilGenerator, textureID, position, rectangle, rotation, scale, layer);
 
-							ilGenerator.Emit(OpCodes.Ldarg_1); // loads the local argument spritebatch on the evaluation stack
-							ilGenerator.Emit(OpCodes.Ldarg_2); // loads the local argument texture array on the evaluation stack
-
-                            Behaviors.DrawStaticSprite(ilGenerator, textureID, position + offset, rectangle, rotation, scale, layer);
-						}
-						
-					}
                     
                 }
             }
