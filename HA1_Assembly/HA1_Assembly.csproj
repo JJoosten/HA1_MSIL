@@ -72,7 +72,9 @@
     <Content Include="Content\BehaviorTypes.xml" />
     <Content Include="Content\GameTypes.xml" />
     <Content Include="Content\Icon.ico" />
-    <Content Include="Content\Scene.xml" />
+    <Content Include="Content\Scene.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Content\Sprites\BorderLeft.png" />
     <Content Include="Content\Sprites\BorderRight.png" />
     <Content Include="Content\Sprites\Sand.png" />

@@ -9,6 +9,8 @@
 		<Property name="Scale" type="Vector2" />
 		<Property name="Rotation" type="float" />
     <Property name="Layer" type="float" />
+    <Property name="RepeatRandomRangeX" type="Vector2" />
+    <Property name="RepeatRandomRangeY" type="Vector2" />
 	</Behavior>
 	<Behavior name="Movable" >
 		<Property name="Position" type="Vector2" />
@@ -17,5 +19,7 @@
 	</Behavior>
 	<Behavior name="Collidable" >
 		<Property name="AABB" type="Rectangle" />
+    <Property name="RepeatRandomRangeX" type="Vector2" />
+    <Property name="RepeatRandomRangeY" type="Vector2" />
 	</Behavior>
 </Behaviors>

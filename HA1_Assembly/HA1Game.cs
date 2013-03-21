@@ -139,7 +139,7 @@ namespace HA1_Assembly
             //Collision detection
             Rectangle playerRect = new Rectangle((int)m_Player.Position.X + 640, (int)m_Player.Position.Y + 360, (int)m_Player.SpriteRectangle.Width, (int)m_Player.SpriteRectangle.Height);
 
-            Console.WriteLine(string.Format("X: {0} Y: {1} OffsetX {2} OffsetY {3}", m_Player.Position.X, m_Player.Position.Y, (int)m_Player.Position.X + 640, (int)m_Player.Position.Y + 360));
+           // Console.WriteLine(string.Format("X: {0} Y: {1} OffsetX {2} OffsetY {3}", m_Player.Position.X, m_Player.Position.Y, (int)m_Player.Position.X + 640, (int)m_Player.Position.Y + 360));
 
             bool check = (bool)m_GenStaticCollisionCheck(playerRect);
             if (check)
