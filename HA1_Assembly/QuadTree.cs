@@ -189,6 +189,38 @@ namespace HA1_Assembly
             a_ILGenerator.MarkLabel(endLabel);
 
         }
+
+        public int CollisionCheck(Rectangle a_PlayerRectangle)
+        {
+            if (a_PlayerRectangle.Intersects(boundingRectangle) == true)
+            {
+                int returnValue = 0;
+                if (hasChilds == true)
+                {
+                    for (int i = 0; i < 4; ++i)
+                    {
+                        returnValue = childNodes[i].CollisionCheck(a_PlayerRectangle);
+                        if (returnValue != 0)
+                        {
+                            return returnValue;
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (Tuple<Rectangle, int> pair in rectangles)
+                    {
+                        if (a_PlayerRectangle.Intersects(pair.Item1) == true)
+                        {
+                            return pair.Item2;
+                        }
+                    }   
+                }
+                
+            }
+            return 0;
+        }
+
         //Members
         public Rectangle boundingRectangle;
         List<Tuple<Rectangle, int>> rectangles;
@@ -209,6 +241,11 @@ namespace HA1_Assembly
         public void GenerateAssembly(ILGenerator a_ILGenerator, Label a_FalseLabel, Label a_TrueLabel)
         {
             rootNode.GenerateAssembly(a_ILGenerator, a_FalseLabel, a_TrueLabel);
+        }
+
+        public int CheckForCollision(Rectangle a_PlayerRectangle)
+        {
+            return rootNode.CollisionCheck(a_PlayerRectangle);
         }
     }
 }

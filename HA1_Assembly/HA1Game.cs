@@ -25,6 +25,7 @@ namespace HA1_Assembly
 		private SceneManager m_SceneManager;
 		private Player m_Player;
 		private Object m_GenGame;
+        private AssemblyQuadTree quadTree;
 
         private List<Object> m_Movables;
         private Func<Rectangle, int> m_GenStaticCollisionCheck;
@@ -81,7 +82,7 @@ namespace HA1_Assembly
             foreach (Object obj in staticCollidableList)
                 staticRectangles.Add(new Tuple<Rectangle, int>(GetRectangleFromObject(obj), GetHashFromObject(obj)));
 
-            AssemblyQuadTree quadTree = new AssemblyQuadTree(new Rectangle( -3000, -3000, 6000, 6000), staticRectangles);
+            quadTree = new AssemblyQuadTree(new Rectangle(-3000, -3000, 6000, 6000), staticRectangles);
 
 			// this class will generate the game assembly
 			GameAssemblyBuilder gameAssemblyBuilder = new GameAssemblyBuilder();
@@ -212,14 +213,14 @@ namespace HA1_Assembly
 
            // Console.WriteLine(string.Format("X: {0} Y: {1} OffsetX {2} OffsetY {3}", m_Player.Position.X, m_Player.Position.Y, (int)m_Player.Position.X + 640, (int)m_Player.Position.Y + 360));
 
-            int collisionHash = (int)m_GenStaticCollisionCheck(playerRect);
+            int collisionHash = quadTree.CheckForCollision(playerRect); //(int)m_GenStaticCollisionCheck(playerRect);
             if (collisionHash != 0)
             {
                 //Collided so game over
                 Console.WriteLine( String.Format("Hitted a object with hash {0}", collisionHash ) );
             }
 
-            int TreeHash = ("Tree").GetHashCode();
+            int TreeHash = ("Rock").GetHashCode();
 
             if (collisionHash == TreeHash)
             {
