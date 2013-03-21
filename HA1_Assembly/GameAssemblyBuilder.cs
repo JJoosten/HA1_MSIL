@@ -118,35 +118,12 @@ namespace HA1_Assembly
 
                     propertyInfo = type.GetProperty("Layer");
                     float layer = (float)propertyInfo.GetValue(drawable, null);
-                    
-                    propertyInfo = type.GetProperty("RepeatRandomRangeX");
-                    Vector2 repeatRandomRangeX = (Vector2)propertyInfo.GetValue(drawable, null);
-                    float repeatRandomWidthX = repeatRandomRangeX.Y - repeatRandomRangeX.X;
+                
+					ilGenerator.Emit(OpCodes.Ldarg_1); // loads the local argument spritebatch on the evaluation stack
+					ilGenerator.Emit(OpCodes.Ldarg_2); // loads the local argument texture array on the evaluation stack
 
-                    propertyInfo = type.GetProperty("RepeatRandomRangeY");
-                    Vector2 repeatRandomRangeY = (Vector2)propertyInfo.GetValue(drawable, null);
-                    float repeatRandomWidthY = repeatRandomRangeY.Y - repeatRandomRangeY.X;
+					Behaviors.DrawStaticSprite(ilGenerator, textureID, position, rectangle, rotation, scale, layer);
 
-                    Random random = new Random();
-					Vector2 offset = new Vector2();
-					for (int y = 0; y < spriteRepeat.Y; y++)
-					{
-						for (int x = 0; x < spriteRepeat.X; x++)
-                        {
-                            const int divisionValue = 1 << 10;
-                            float randomNumberX = (float)random.Next(0, divisionValue) / (float)(divisionValue);
-                            float randomNumberY = (float)random.Next(0, divisionValue) / (float)(divisionValue);
-
-                            offset.X = rectangle.Width * x + repeatRandomRangeX.X + randomNumberX * repeatRandomWidthX;
-                            offset.Y = rectangle.Height * y + repeatRandomRangeY.X + randomNumberY * repeatRandomWidthY;
-
-							ilGenerator.Emit(OpCodes.Ldarg_1); // loads the local argument spritebatch on the evaluation stack
-							ilGenerator.Emit(OpCodes.Ldarg_2); // loads the local argument texture array on the evaluation stack
-
-                            Behaviors.DrawStaticSprite(ilGenerator, textureID, position + offset, rectangle, rotation, scale, layer);
-						}
-						
-					}
                     
                 }
             }
