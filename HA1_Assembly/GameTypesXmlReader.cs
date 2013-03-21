@@ -31,6 +31,7 @@ namespace HA1_Assembly
 					{
 						gameType = new GameType();
 						gameType.Name = xmlReader.GetAttribute("name");
+                        gameType.Hash = gameType.Name.GetHashCode();
 						GameTypes.Add(gameType);
 					}
 					else if (xmlReader.Name == "Behavior")
@@ -54,6 +55,7 @@ namespace HA1_Assembly
 			foreach (GameType gameType in GameTypes)
 			{
 				gameType.Properties.Add("Name", new PropertyField() { PropertyType = typeof(String), PropertyName = "Name" });
+                gameType.Properties.Add("Hash", new PropertyField() { PropertyType = typeof(int), PropertyName = "Hash" });
 
 				foreach (KeyValuePair<string, List<PropertyField>> item in a_GameBehaviorProperties)
 				{

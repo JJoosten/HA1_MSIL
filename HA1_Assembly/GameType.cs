@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 namespace HA1_Assembly
 {
 	public class GameType
-	{
-		public string Name { get; set; }
+    {
+        public string Name { get; set; }
+        public int Hash { get; set; }
 
 		public Dictionary<string, bool> Behaviors { get; set; }
 

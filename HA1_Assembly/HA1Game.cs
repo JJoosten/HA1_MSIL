@@ -25,9 +25,10 @@ namespace HA1_Assembly
 		private SceneManager m_SceneManager;
 		private Player m_Player;
 		private Object m_GenGame;
+        private AssemblyQuadTree quadTree;
 
         private List<Object> m_Movables;
-        private Func<Rectangle, bool> m_GenStaticCollisionCheck;
+        private Func<Rectangle, int> m_GenStaticCollisionCheck;
         private Action<List<Object>, List<Object>> m_GenInitialize;
         private Action<SpriteBatch, Texture2D[]> m_GenGameDraw;
 
@@ -80,11 +81,11 @@ namespace HA1_Assembly
             List<Object> staticDrawableList = m_SceneManager.GetStaticObjectList("Drawable");
 			m_DynamicObjects = m_SceneManager.GetObjectList("Movable");
 
-            List<Rectangle> staticRectangles = new List<Rectangle>();
+            List<Tuple<Rectangle, int>> staticRectangles = new List<Tuple<Rectangle, int>>();
             foreach (Object obj in staticCollidableList)
-                staticRectangles.Add(GetRectangleFromObject(obj));
+                staticRectangles.Add(new Tuple<Rectangle, int>(GetRectangleFromObject(obj), GetHashFromObject(obj)));
 
-            AssemblyQuadTree quadTree = new AssemblyQuadTree(new Rectangle( -3000, -3000, 6000, 6000), staticRectangles);
+            quadTree = new AssemblyQuadTree(new Rectangle(-3000, -3000, 6000, 6000), staticRectangles);
 
 			// this class will generate the game assembly
 			GameAssemblyBuilder gameAssemblyBuilder = new GameAssemblyBuilder();
@@ -188,7 +189,7 @@ namespace HA1_Assembly
 
             // create collision delegate
             var staticCollisionCheck = genGameType.GetMethod("StaticCollisionCheck");
-            m_GenStaticCollisionCheck = (Func<Rectangle, bool>)Delegate.CreateDelegate(typeof(Func<Rectangle, bool>), m_GenGame, staticCollisionCheck);
+            m_GenStaticCollisionCheck = (Func<Rectangle, int>)Delegate.CreateDelegate(typeof(Func<Rectangle, int>), m_GenGame, staticCollisionCheck);
             
             // create initialize delegate and call initialize
             var initialize = genGameType.GetMethod("Initialize");
@@ -212,14 +213,23 @@ namespace HA1_Assembly
 			UpdateDynamicObjects(a_GameTime);
 
             //Collision detection
-            Rectangle playerRect = new Rectangle((int)m_Player.Position.X + 640, (int)m_Player.Position.Y + 360, (int)m_Player.SpriteRectangle.Width, (int)m_Player.SpriteRectangle.Height);
+            Rectangle playerRect = new Rectangle((int)m_Player.Position.X + 640 - ( (int)m_Player.SpriteRectangle.Width / 2 ), (int)m_Player.Position.Y + 360 - ( (int)m_Player.SpriteRectangle.Height / 2 ), (int)m_Player.SpriteRectangle.Width, (int)m_Player.SpriteRectangle.Height);
+            Matrix rotMat = Matrix.CreateRotationZ(m_Player.Rotation);
 
            // Console.WriteLine(string.Format("X: {0} Y: {1} OffsetX {2} OffsetY {3}", m_Player.Position.X, m_Player.Position.Y, (int)m_Player.Position.X + 640, (int)m_Player.Position.Y + 360));
 
-            bool check = (bool)m_GenStaticCollisionCheck(playerRect);
-            if (check)
+            int collisionHash = quadTree.CheckForCollision(playerRect); //(int)m_GenStaticCollisionCheck(playerRect);
+            if (collisionHash != 0)
             {
-                Console.WriteLine("Check");
+                //Collided so game over
+                Console.WriteLine( String.Format("Hitted a object with hash {0}", collisionHash ) );
+            }
+
+            int TreeHash = ("Rock").GetHashCode();
+
+            if (collisionHash == TreeHash)
+            {
+                Boolean check = true;
             }
 
 			base.Update(a_GameTime);
@@ -324,5 +334,12 @@ namespace HA1_Assembly
             return rect;
         }
 
+        public int GetHashFromObject(Object a_Object)
+        {
+            Type t = a_Object.GetType();
+            MethodInfo methodInfo = t.GetProperty("Hash").GetGetMethod();
+            int Hash = (int)methodInfo.Invoke(a_Object, null);
+            return Hash;
+        }
 	}
 }
