@@ -204,6 +204,8 @@ namespace HA1_Assembly
 			if ( GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape) )
 				Exit();
 
+            Vector3 position = m_Player.Position;
+
 			m_Player.Update(a_GameTime);
 			m_Player.UpdateBullets(a_GameTime);
 
@@ -211,7 +213,7 @@ namespace HA1_Assembly
             Rectangle playerRect = new Rectangle((int)m_Player.Position.X + 640 - ( (int)m_Player.SpriteRectangle.Width / 2 ), (int)m_Player.Position.Y + 360 - ( (int)m_Player.SpriteRectangle.Height / 2 ), (int)m_Player.SpriteRectangle.Width, (int)m_Player.SpriteRectangle.Height);
             Matrix rotMat = Matrix.CreateRotationZ(m_Player.Rotation);
 
-           // Console.WriteLine(string.Format("X: {0} Y: {1} OffsetX {2} OffsetY {3}", m_Player.Position.X, m_Player.Position.Y, (int)m_Player.Position.X + 640, (int)m_Player.Position.Y + 360));
+            //Console.WriteLine(string.Format("X: {0} Y: {1} OffsetX {2} OffsetY {3}", m_Player.Position.X, m_Player.Position.Y, (int)m_Player.Position.X + 640, (int)m_Player.Position.Y + 360));
 
             int collisionHash = quadTree.CheckForCollision(playerRect); //(int)m_GenStaticCollisionCheck(playerRect);
             if (collisionHash != 0)
@@ -220,11 +222,16 @@ namespace HA1_Assembly
                 Console.WriteLine( String.Format("Hitted a object with hash {0}", collisionHash ) );
             }
 
-            int TreeHash = ("Rock").GetHashCode();
+            int RockHash = ("Rock").GetHashCode();
+            int SandHash = ("Sand").GetHashCode();
 
-            if (collisionHash == TreeHash)
+            if (collisionHash == RockHash)
             {
-                Boolean check = true;
+                m_Player.Position = new Vector3(640, 360, 0);
+            }
+            else if (collisionHash == SandHash)
+            {
+                m_Player.Position = position;
             }
 
 			base.Update(a_GameTime);
