@@ -332,7 +332,7 @@ namespace HA1_Assembly
 
             //collisionHash = quadTree.CheckForCollision(m_PlayerCollisionRectangle);
             int collisionHash = m_GenStaticCollisionCheck(m_PlayerCollisionRectangle);
-        
+
             int RockHash = ("Rock").GetHashCode();
             int SandHash = ("Sand").GetHashCode();
 
