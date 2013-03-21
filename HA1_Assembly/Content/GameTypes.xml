@@ -9,6 +9,7 @@
 	</Type>
 	<Type name="Sand" >
 		<Behavior name="Drawable" />
+    <Behavior name="Collidable" />
 	</Type>
 	<Type name="Airplane">
 		<Behavior name="Drawable" />

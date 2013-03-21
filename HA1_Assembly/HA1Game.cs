@@ -25,13 +25,21 @@ namespace HA1_Assembly
 		private SceneManager m_SceneManager;
 		private Player m_Player;
 		private Object m_GenGame;
+        private AssemblyQuadTree quadTree;
 
         private List<Object> m_Movables;
-        private Func<Rectangle, bool> m_GenStaticCollisionCheck;
+        private Func<Rectangle, int> m_GenStaticCollisionCheck;
         //private Action<List<Object>, List<Object>> m_GenInitialize;
+
         private Action<SpriteBatch, Texture2D[]> m_GenGameDraw;
         private List<Object> m_Collidables;
+
+		private List<Object> m_DynamicObjects;
+
+        private Boolean m_DrawDebugRectangles = false;
         private List<VertexPositionColor[]> m_PrimitiveLines;
+        private KeyboardState m_PrevKeyboardState;
+
 
 		public HA1Game()
 			: base()
@@ -78,12 +86,13 @@ namespace HA1_Assembly
 
             List<Object> staticCollidableList = m_SceneManager.GetStaticObjectList("Collidable");
             List<Object> staticDrawableList = m_SceneManager.GetStaticObjectList("Drawable");
+			m_DynamicObjects = m_SceneManager.GetObjectList("Movable");
 
-            List<Rectangle> staticRectangles = new List<Rectangle>();
+            List<Tuple<Rectangle, int>> staticRectangles = new List<Tuple<Rectangle, int>>();
             foreach (Object obj in staticCollidableList)
-                staticRectangles.Add(GetRectangleFromObject(obj));
+                staticRectangles.Add(new Tuple<Rectangle, int>(GetRectangleFromObject(obj), GetHashFromObject(obj)));
 
-            AssemblyQuadTree quadTree = new AssemblyQuadTree(new Rectangle( -3000, -3000, 6000, 6000), staticRectangles);
+            quadTree = new AssemblyQuadTree(new Rectangle(-3000, -3000, 6000, 6000), staticRectangles);
 
 			// this class will generate the game assembly
 			GameAssemblyBuilder gameAssemblyBuilder = new GameAssemblyBuilder();
@@ -229,7 +238,7 @@ namespace HA1_Assembly
 
             // create collision delegate
             var staticCollisionCheck = genGameType.GetMethod("StaticCollisionCheck");
-            m_GenStaticCollisionCheck = (Func<Rectangle, bool>)Delegate.CreateDelegate(typeof(Func<Rectangle, bool>), m_GenGame, staticCollisionCheck);
+            m_GenStaticCollisionCheck = (Func<Rectangle, int>)Delegate.CreateDelegate(typeof(Func<Rectangle, int>), m_GenGame, staticCollisionCheck);
             
             // create initialize delegate and call initialize
             var initialize = genGameType.GetMethod("Initialize");
@@ -249,19 +258,67 @@ namespace HA1_Assembly
 			if ( GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape) )
 				Exit();
 
+            if (Keyboard.GetState().IsKeyDown(Keys.Enter) && !m_PrevKeyboardState.IsKeyDown(Keys.Enter))
+            {
+                m_DrawDebugRectangles = !m_DrawDebugRectangles;
+            }
+
+            Vector3 position = m_Player.Position;
+
 			m_Player.Update(a_GameTime);
 			m_Player.UpdateBullets(a_GameTime);
 
-            //Collision detection
-            Rectangle playerRect = new Rectangle((int)m_Player.Position.X + 640, (int)m_Player.Position.Y + 360, (int)m_Player.SpriteRectangle.Width, (int)m_Player.SpriteRectangle.Height);
+			UpdateDynamicObjects(a_GameTime);
 
-            bool check = (bool)m_GenStaticCollisionCheck(playerRect);
-            if (check)
+            //Collision detection
+            Rectangle playerRect = new Rectangle((int)m_Player.Position.X + 640 - ( (int)m_Player.SpriteRectangle.Width / 2 ), (int)m_Player.Position.Y + 360 - ( (int)m_Player.SpriteRectangle.Height / 2 ), (int)m_Player.SpriteRectangle.Width, (int)m_Player.SpriteRectangle.Height);
+            Matrix rotMat = Matrix.CreateRotationZ(m_Player.Rotation);
+
+            //Console.WriteLine(string.Format("X: {0} Y: {1} OffsetX {2} OffsetY {3}", m_Player.Position.X, m_Player.Position.Y, (int)m_Player.Position.X + 640, (int)m_Player.Position.Y + 360));
+
+            int collisionHash = quadTree.CheckForCollision(playerRect); //(int)m_GenStaticCollisionCheck(playerRect);
+            if (collisionHash != 0)
             {
-                Console.WriteLine("Check");
+                //Collided so game over
+                Console.WriteLine( String.Format("Hitted a object with hash {0}", collisionHash ) );
             }
 
+            int RockHash = ("Rock").GetHashCode();
+            int SandHash = ("Sand").GetHashCode();
+
+            if (collisionHash == RockHash)
+            {
+                m_Player.Position = new Vector3(640, 360, 0);
+            }
+            else if (collisionHash == SandHash)
+            {
+                m_Player.Position = position;
+            }
+
+            m_PrevKeyboardState = Keyboard.GetState();
 			base.Update(a_GameTime);
+		}
+
+		private void UpdateDynamicObjects(GameTime a_GameTime)
+		{
+			foreach (Object item in m_DynamicObjects)
+			{
+				Type type = item.GetType();
+				PropertyInfo propertyInfoPos = type.GetProperty("Position");
+				Vector2 position = (Vector2)propertyInfoPos.GetValue(item, null);
+
+				PropertyInfo propertyInfoVel = type.GetProperty("Velocity");
+				Vector2 velocity = (Vector2)propertyInfoVel.GetValue(item, null);
+
+				PropertyInfo propertyInfoAcc = type.GetProperty("Acceleration");
+				Vector2 acceleration = (Vector2)propertyInfoAcc.GetValue(item, null);
+
+				velocity += acceleration * a_GameTime.ElapsedGameTime.Milliseconds * 0.001f;
+				position += velocity * a_GameTime.ElapsedGameTime.Milliseconds * 0.001f;
+
+				propertyInfoVel.SetValue(item, velocity, null);
+				propertyInfoPos.SetValue(item, position, null);
+			}
 		}
 
 		protected override void Draw(GameTime a_GameTime)
@@ -284,33 +341,75 @@ namespace HA1_Assembly
             m_SpriteBatch.End();
 
             // draw debug
-            m_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.Opaque, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, mat);
+            if (m_DrawDebugRectangles)
             {
-                foreach (VertexPositionColor[] primitive in m_PrimitiveLines)
+                m_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.Opaque, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, mat);
                 {
-                    Vector3[] oldPositions = new Vector3[8];
-                    for (int i = 0; i < 8; ++i)
+                    foreach (VertexPositionColor[] primitive in m_PrimitiveLines)
                     {
-                        oldPositions[i] = primitive[i].Position;
-                        primitive[i].Position = Vector3.Transform(primitive[i].Position, mat);
+                        Vector3[] oldPositions = new Vector3[8];
+                        for (int i = 0; i < 8; ++i)
+                        {
+                            oldPositions[i] = primitive[i].Position;
+                            primitive[i].Position = Vector3.Transform(primitive[i].Position, mat);
+                        }
+
+                        GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, primitive, 0, 4);
+
+                        for (int i = 0; i < 8; ++i)
+                            primitive[i].Position = oldPositions[i];
                     }
-
-                    GraphicsDevice.DrawUserPrimitives(PrimitiveType.LineList, primitive, 0, 4);
-
-                    for (int i = 0; i < 8; ++i)
-                        primitive[i].Position = oldPositions[i];
                 }
+                m_SpriteBatch.End();
+            }
+
+			m_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, mat);
+            {
+				DrawDynamicObjects(a_GameTime);
+				m_Player.DrawBullets(a_GameTime, m_SpriteBatch);
             }
             m_SpriteBatch.End();
 
-            m_SpriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, mat);
-            {
-                m_Player.DrawBullets(a_GameTime, m_SpriteBatch);
-            }
-            m_SpriteBatch.End();
+
 
             base.Draw(a_GameTime);
         }
+
+		private void DrawDynamicObjects(GameTime a_GameTime)
+		{
+			Texture2D[] textureArray = m_SceneXmlReader.Sprites.ToArray();
+			foreach (Object drawable in m_DynamicObjects)
+			{
+				Type type = drawable.GetType();
+				PropertyInfo propertyInfo = type.GetProperty("SpriteID");
+				int textureID = (int)propertyInfo.GetValue(drawable, null);
+
+				Texture2D texture = textureArray[textureID];
+
+				// get position
+				propertyInfo = type.GetProperty("Position");
+				Vector2 position = (Vector2)propertyInfo.GetValue(drawable, null);
+
+				propertyInfo = type.GetProperty("SpriteRectangle");
+				Rectangle rectangle = (Rectangle)propertyInfo.GetValue(drawable, null);
+
+				propertyInfo = type.GetProperty("SpriteRepeat");
+				Vector2 spriteRepeat = (Vector2)propertyInfo.GetValue(drawable, null);
+				if (spriteRepeat.X == 0) spriteRepeat.X = 1;
+				if (spriteRepeat.Y == 0) spriteRepeat.Y = 1;
+
+				propertyInfo = type.GetProperty("Rotation");
+				float rotation = (float)propertyInfo.GetValue(drawable, null);
+
+				propertyInfo = type.GetProperty("Scale");
+				Vector2 scale = (Vector2)propertyInfo.GetValue(drawable, null);
+
+				propertyInfo = type.GetProperty("Layer");
+				float layer = (float)propertyInfo.GetValue(drawable, null);
+
+				m_SpriteBatch.Draw(texture, position, rectangle, Color.White, rotation, Vector2.Zero, scale, 0, 0.0f);
+			}
+		}
 
         //JURRE
         public Rectangle GetRectangleFromObject(Object a_Object)
@@ -325,7 +424,13 @@ namespace HA1_Assembly
             rect.Y += (int)position.Y;
             return rect;
         }
-        
 
+        public int GetHashFromObject(Object a_Object)
+        {
+            Type t = a_Object.GetType();
+            MethodInfo methodInfo = t.GetProperty("Hash").GetGetMethod();
+            int Hash = (int)methodInfo.Invoke(a_Object, null);
+            return Hash;
+        }
 	}
 }

@@ -50,7 +50,7 @@ namespace HA1_Assembly
 						if (xmlReader.Name == gameType.Name)
 						{
 							Object o = assembly.CreateInstance(gameType.Name);
-							Type type = assembly.GetType(gameType.Name);
+							Type type = assembly.GetType(gameType.Name);                           
 
 							foreach (PropertyField property in gameType.Properties.Values)
 							{
@@ -87,6 +87,10 @@ namespace HA1_Assembly
 									info.SetValue(o, rectangle, null);
 								}
 							}
+
+                            PropertyInfo infoHash = type.GetProperty("Hash");
+                            infoHash.SetValue(o, gameType.Hash, null);
+
 							Objects.Add(o);
 						}
 					}
