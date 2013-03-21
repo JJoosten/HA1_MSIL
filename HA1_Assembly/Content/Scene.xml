@@ -9,4 +9,6 @@
 	<Sand Name="SandRight" Sprite="Sprites/Sand.png" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="20,40" Position="2688,0" Scale="1,1" Rotation="0,0" />
 	<Sand Name="SandTop" Sprite="Sprites/Sand.png" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="82,20" Position="-1280,-1280" Scale="1,1" Rotation="0,0" />
 	<Sand Name="SandBottom" Sprite="Sprites/Sand.png" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="82,20" Position="-1280,2560" Scale="1,1" Rotation="0,0" />
+
+	<Airplane Name="Airplane" Sprite="Sprites/TileSet.png" AABBMin="0,0" AABBMax="40,40" SpriteRectangleMin="4,4" SpriteRectangleMax="32,32" SpriteRepeat="30,4" RepeatRandomRangeX="64,1280" RepeatRandomRangeY="32,640" Position="128,-640" Velocity="0,40" Scale="1,1" Rotation="0" Layer="1.0"  />
 </Scene>
