@@ -23,6 +23,7 @@ namespace HA1_Assembly
 		private Rectangle m_BulletRect;
 
 		private KeyboardState m_PrevKeyboardState;
+		private float m_ShootDT;
 
 		public Player()
 		{
@@ -35,6 +36,7 @@ namespace HA1_Assembly
 			Acceleration = new Vector3(0.0f, 0.0f, 0);
             Rotation = 0;
 			m_PrevKeyboardState = Keyboard.GetState();
+			m_ShootDT = 200.0f;
 		}
 
 		public void InitBullets()
@@ -77,8 +79,19 @@ namespace HA1_Assembly
                 addativeDirection += new Vector3(0, 1.0f, 0);
 
 			if (m_PrevKeyboardState.IsKeyUp(Keys.Space) && Keyboard.GetState().IsKeyDown(Keys.Space))
+			{
 				ShootBullet();
-
+			}
+			else if (Keyboard.GetState().IsKeyDown(Keys.Space))
+			{
+				m_ShootDT -= a_GameTime.ElapsedGameTime.Milliseconds;
+				if (m_ShootDT <= 0)
+				{
+					ShootBullet();
+					m_ShootDT = 200.0f;
+				}
+			}
+				
             if( addativeDirection.LengthSquared() != 0)
                 addativeDirection.Normalize();
             Velocity += addativeDirection * dtSpeed; 
