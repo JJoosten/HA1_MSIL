@@ -72,6 +72,7 @@ namespace HA1_Assembly
 			m_SceneXmlReader = new SceneXmlReader(Content);
 			m_SceneXmlReader.Parse(Directory.GetCurrentDirectory() + @"\Content\Scene.xml", gameTypesXml.GameTypes);
 
+			InitDynamicObjects(gameTypesXml);
 			CloneDrawableObjects(gameTypesXml);
 
 			m_SceneManager = new SceneManager();
@@ -100,8 +101,31 @@ namespace HA1_Assembly
 			base.Initialize();
 		}
 
+		private void InitDynamicObjects(GameTypesXmlReader a_GameTypesXml)
+		{
+			foreach (Object item in m_SceneXmlReader.Objects)
+			{
+				Type type = item.GetType();
+				GameType gameType = a_GameTypesXml.GameTypes.Find(t => t.Name == type.Name);
+
+				bool hasBehavior = false;
+				bool hasValue = gameType.Behaviors.TryGetValue("Movable", out hasBehavior);
+
+				if (gameType != null && hasBehavior)
+				{
+					PropertyInfo propertyInfo = type.GetProperty("Position");
+					Vector2 position = (Vector2)propertyInfo.GetValue(item, null);
+
+					propertyInfo = type.GetProperty("InitialPosition");
+					propertyInfo.SetValue(item, position, null);
+				}
+			}
+		}
+
 		private void CloneDrawableObjects(GameTypesXmlReader a_GameTypesXml)
 		{
+			Random random = new Random();
+			Vector2 offset = new Vector2();
 			List<Object> clonedObjects = new List<object>();
 			foreach (Object item in m_SceneXmlReader.Objects)
 			{
@@ -131,8 +155,6 @@ namespace HA1_Assembly
                     Vector2 repeatRandomRangeY = (Vector2)propertyInfo.GetValue(item, null);
                     float repeatRandomWidthY = repeatRandomRangeY.Y - repeatRandomRangeY.X;
 
-                    Random random = new Random();
-					Vector2 offset = new Vector2();
 					for (int y = 0; y < spriteRepeat.Y; y++)
 					{
 						for (int x = 0; x < spriteRepeat.X; x++)
@@ -237,9 +259,14 @@ namespace HA1_Assembly
 
 		private void UpdateDynamicObjects(GameTime a_GameTime)
 		{
+			Random random = new Random();
+			Vector2 offset = new Vector2();
 			foreach (Object item in m_DynamicObjects)
 			{
 				Type type = item.GetType();
+				PropertyInfo propertyInfoInitialPos = type.GetProperty("InitialPosition");
+				Vector2 initialPosition = (Vector2)propertyInfoInitialPos.GetValue(item, null);
+
 				PropertyInfo propertyInfoPos = type.GetProperty("Position");
 				Vector2 position = (Vector2)propertyInfoPos.GetValue(item, null);
 
@@ -249,11 +276,50 @@ namespace HA1_Assembly
 				PropertyInfo propertyInfoAcc = type.GetProperty("Acceleration");
 				Vector2 acceleration = (Vector2)propertyInfoAcc.GetValue(item, null);
 
+				PropertyInfo propertyInfoRect = type.GetProperty("SpriteRectangle");
+                Rectangle rectangle = (Rectangle)propertyInfoRect.GetValue(item, null);
+
+				PropertyInfo propertyInfo = type.GetProperty("SpriteRepeat");
+				Vector2 spriteRepeat = (Vector2)propertyInfo.GetValue(item, null);
+                    
+                propertyInfo = type.GetProperty("RepeatRandomRangeX");
+                Vector2 repeatRandomRangeX = (Vector2)propertyInfo.GetValue(item, null);
+                float repeatRandomWidthX = repeatRandomRangeX.Y - repeatRandomRangeX.X;
+
+                propertyInfo = type.GetProperty("RepeatRandomRangeY");
+                Vector2 repeatRandomRangeY = (Vector2)propertyInfo.GetValue(item, null);
+                float repeatRandomWidthY = repeatRandomRangeY.Y - repeatRandomRangeY.X;
+
 				velocity += acceleration * a_GameTime.ElapsedGameTime.Milliseconds * 0.001f;
 				position += velocity * a_GameTime.ElapsedGameTime.Milliseconds * 0.001f;
 
 				propertyInfoVel.SetValue(item, velocity, null);
 				propertyInfoPos.SetValue(item, position, null);
+
+				rectangle.X = (int)position.X;
+				rectangle.Y = (int)position.Y;
+
+				if (type.Name == "Airplane")
+				{
+					Bullet[] bullets = m_Player.GetBullets();
+					for (uint i = 0; i < m_Player.GetNumActiveBullets(); i++)
+					{
+						Bullet bullet = bullets[i];
+						Rectangle bulletRect = new Rectangle((int)bullet.Position.X, (int)bullet.Position.Y, 32, 32);
+						if ( bulletRect.Intersects(rectangle) )
+						{
+							const int divisionValue = 1 << 10;
+                            float randomNumberX = (float)random.Next(0, divisionValue) / (float)(divisionValue);
+                            float randomNumberY = (float)random.Next(0, divisionValue) / (float)(divisionValue);
+
+                            offset.X = rectangle.Width + repeatRandomRangeX.X + randomNumberX * repeatRandomWidthX;
+                            offset.Y = rectangle.Height + repeatRandomRangeY.X + randomNumberY * repeatRandomWidthY;
+
+							propertyInfoPos.SetValue(item, initialPosition + offset, null);
+							m_Player.DestroyBullet(i);
+						}
+					}
+				}
 			}
 		}
 
