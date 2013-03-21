@@ -5,10 +5,10 @@
 	<Water Name="Water1" Sprite="Sprites/Water.png" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="40,40" Position="64,0" Scale="1,1" Rotation="0,0" />
 	<Sand Name="BorderLeft" Sprite="Sprites/BorderLeft.png" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="1,40" Position="0,0" Scale="1,1" Rotation="0,0" />
 	<Sand Name="BorderRight" Sprite="Sprites/BorderRight.png" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="1,40" Position="2624,0" Scale="1,1" Rotation="0,0" />
-	<Sand Name="SandLeft" Sprite="Sprites/Sand.png" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="20,40" Position="-1280,0" Scale="1,1" Rotation="0,0" />
-	<Sand Name="SandRight" Sprite="Sprites/Sand.png" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="20,40" Position="2688,0" Scale="1,1" Rotation="0,0" />
-	<Sand Name="SandTop" Sprite="Sprites/Sand.png" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="82,20" Position="-1280,-1280" Scale="1,1" Rotation="0,0" />
-	<Sand Name="SandBottom" Sprite="Sprites/Sand.png" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="82,20" Position="-1280,2560" Scale="1,1" Rotation="0,0" />
+	<Sand Name="SandLeft" Sprite="Sprites/Sand.png" AABBMin="0,0" AABBMax="64,64" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="20,40" Position="-1280,0" Scale="1,1" Rotation="0,0" />
+	<Sand Name="SandRight" Sprite="Sprites/Sand.png" AABBMin="0,0" AABBMax="64,64" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="20,40" Position="2688,0" Scale="1,1" Rotation="0,0" />
+	<Sand Name="SandTop" Sprite="Sprites/Sand.png" AABBMin="0,0" AABBMax="64,64" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="82,20" Position="-1280,-1280" Scale="1,1" Rotation="0,0" />
+	<Sand Name="SandBottom" Sprite="Sprites/Sand.png" AABBMin="0,0" AABBMax="64,64" SpriteRectangleMin="0,0" SpriteRectangleMax="64,64" SpriteRepeat="82,20" Position="-1280,2560" Scale="1,1" Rotation="0,0" />
 
 	<Airplane Name="Airplane" Sprite="Sprites/TileSet.png" AABBMin="0,0" AABBMax="40,40" SpriteRectangleMin="4,4" SpriteRectangleMax="32,32" SpriteRepeat="30,4" RepeatRandomRangeX="64,1280" RepeatRandomRangeY="32,640" Position="128,-640" Velocity="0,40" Scale="1,1" Rotation="0" Layer="1.0"  />
 </Scene>
